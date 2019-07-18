@@ -7,11 +7,9 @@ verify_ssl = true
 
 [packages]
 python-dotenv = "*"
-<<<<<<< HEAD
 orator = "*"
-psycopg2 = "*"
-=======
->>>>>>> 9dc263d14c6c08771128680c5b2f2976c82b528d
+psycopg2-binary = "*"
+requests = "*"
 
 [requires]
 python_version = "3.7"

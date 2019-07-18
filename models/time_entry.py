@@ -4,8 +4,8 @@ from models import Activity
 
 class TimeEntry(Model):
 
-    __table__ = 'TimeEntries'
-    __fillable__ = ['start', 'end', 'description', 'duration', 'clockifyId']
+    __table__ = "TimeEntries"
+    __fillable__ = ["start", "end", "description", "duration", "clockifyId"]
 
     @has_one
     def activityId(self):
