@@ -2,5 +2,6 @@ from orator import Model
 
 class Client(Model):
 
-    __table__ = "clients"
-    __fillable__ = ["name", "clockify_id"]
+    __table__ = "client"
+    __fillable__ = ["clockify_id", "name"]
+    __primary_key__ = "clockify_id"

@@ -2,5 +2,6 @@ from orator import Model
 
 class Project(Model):
 
-    __table__ = "projects"
-    __fillable__ = ["name", "clockify_id"]
+    __table__ = "project"
+    __fillable__ = ["clockify_id", "name"]
+    __primary_key__ = "clockify_id"

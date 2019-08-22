@@ -2,5 +2,6 @@ from orator import Model
 
 class Member(Model):
 
-    __table__ = "members"
-    __fillable__ = ["acronym", "clockify_id", "email"]
+    __table__ = "member"
+    __fillable__ = ["clockify_id", "acronym", "email"]
+    __primary_key__ = "clockify_id"
