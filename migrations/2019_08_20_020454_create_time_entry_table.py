@@ -19,7 +19,7 @@ class CreateTimeEntryTable(Migration):
             table.foreign('client_id').references('clockify_id').on('client')
             table.timestamp('start')
             table.timestamp('end')
-            table.string('description')
+            table.string('description').nullable()
             table.timestamps()
 
     def down(self):
