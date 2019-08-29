@@ -8,6 +8,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+.vscode/
+
+# Chalice
+.chalice/deployments/
+.chalice/venv/
+
 # C extensions
 *.so
 

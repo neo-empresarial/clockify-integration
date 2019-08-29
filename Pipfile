@@ -4,17 +4,17 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-pylint = "*"
 black = "*"
-flake8 = "*"
 pre-commit = "*"
-pep8 = "*"
 
 [packages]
 python-dotenv = "*"
 orator = "*"
 psycopg2-binary = "*"
 requests = "*"
+sendgrid = "*"
+chalice = "*"
+pytest-chalice = "*"
 
 [requires]
 python_version = "3.7"
