@@ -9,7 +9,7 @@ class CreateClientTable(Migration):
         """
         with self.schema.create('client') as table:
             table.increments('id')
-            table.string('clockify_id').primary()
+            table.string('clockify_id').unique()
             table.string('name')
             table.timestamps()
 
