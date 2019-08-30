@@ -8,6 +8,7 @@ class CreateMemberTable(Migration):
         Run the migrations.
         """
         with self.schema.create('member') as table:
+            table.increments('id')
             table.string('clockify_id').primary()
             table.string('acronym')
             table.string('email')

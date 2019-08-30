@@ -8,6 +8,7 @@ class CreateProjectTable(Migration):
         Run the migrations.
         """
         with self.schema.create('project') as table:
+            table.increments('id')
             table.string('clockify_id').primary()
             table.string('name')
             table.timestamps()

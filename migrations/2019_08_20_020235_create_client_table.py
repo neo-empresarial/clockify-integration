@@ -8,6 +8,7 @@ class CreateClientTable(Migration):
         Run the migrations.
         """
         with self.schema.create('client') as table:
+            table.increments('id')
             table.string('clockify_id').primary()
             table.string('name')
             table.timestamps()
