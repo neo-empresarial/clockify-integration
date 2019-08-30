@@ -10,8 +10,8 @@ DB_USERNAME = os.getenv("DB_USERNAME")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 CONFIG = {
-    'default': 'neo_data-development',
-    "neo_data-production": {
+    "default": os.getenv("ENVIRONMENT"),
+    "production": {
         "driver": "postgres",
         "host": DB_HOSTNAME,
         "database": DB_NAME,
@@ -19,14 +19,14 @@ CONFIG = {
         "password": DB_PASSWORD,
         "prefix": "",
     },
-    "neo_data-development":{
+    "development": {
         "driver": "postgres",
         "host": "localhost",
         "database": "neo-data",
         "user": "neo",
         "password": "neoempresarial",
         "prefix": "",
-    }
+    },
 }
 
 db = DatabaseManager(CONFIG)
