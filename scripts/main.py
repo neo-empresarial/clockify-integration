@@ -62,15 +62,25 @@ def fetch_users_time_entries(users):
         for time_entry in time_entries.json():
             db_time_entry = TimeEntry.where('clockify_id', time_entry['id']).first()
             if db_time_entry is None:
-                if time_entry['timeInterval']['end'] is None:
-                    TimeEntry.create(clockify_id = time_entry['id'],
-                                    member_id = time_entry['userId'],
-                                    project_id = time_entry['projectId'],
-                                    activity_id = Activity.where('name', time_entry['task']['name']).first().id,
-                                    client_id = time_entry['tags'][0]['id'],
-                                    start = time_entry['timeInterval']['start'],
-                                    end = time_entry['timeInterval']['end'],
-                                    description = time_entry['description'])
+                try:
+                    if time_entry['timeInterval']['end'] is not None:
+                        TimeEntry.create(clockify_id = time_entry['id'],
+                                        member_id = time_entry['userId'],
+                                        project_id = time_entry['projectId'],
+                                        activity_id = Activity.where('name', time_entry['task']['name']).first().id,
+                                        client_id = time_entry['tags'][0]['id'],
+                                        start = time_entry['timeInterval']['start'],
+                                        end = time_entry['timeInterval']['end'],
+                                        description = time_entry['description'])
+                    else:
+                        print("No end time")
+                        print(time_entry)
+                except TypeError:
+                    print("No task")
+                    print(time_entry)
+                except IndexError:
+                    print("no tag")
+                    print(time_entry)
 
 
 def fetch_time_entries():
@@ -93,6 +103,6 @@ def fetch_time_entries():
 
 if __name__ == "__main__":
     users = fetch_members()
-    activities = fetch_activities()
-    clients = fetch_clients()
+    #activities = fetch_activities()
+    #clients = fetch_clients()
     fetch_users_time_entries(users)
