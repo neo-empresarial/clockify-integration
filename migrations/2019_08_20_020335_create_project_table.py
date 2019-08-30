@@ -9,7 +9,7 @@ class CreateProjectTable(Migration):
         """
         with self.schema.create('project') as table:
             table.increments('id')
-            table.string('clockify_id').primary()
+            table.string('clockify_id').unique()
             table.string('name')
             table.timestamps()
 

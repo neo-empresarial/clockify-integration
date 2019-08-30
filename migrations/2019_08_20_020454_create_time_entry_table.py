@@ -9,7 +9,7 @@ class CreateTimeEntryTable(Migration):
         """
         with self.schema.create('time_entry') as table:
             table.increments('id')
-            table.string('clockify_id').primary()
+            table.string('clockify_id').unique()
             table.string('member_id')
             table.foreign('member_id').references('clockify_id').on('member')
             table.string('project_id')
