@@ -103,6 +103,6 @@ def fetch_time_entries():
 
 if __name__ == "__main__":
     users = fetch_members()
-    #activities = fetch_activities()
-    #clients = fetch_clients()
+    activities = fetch_activities()
+    clients = fetch_clients()
     fetch_users_time_entries(users)
