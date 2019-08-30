@@ -8,6 +8,7 @@ class CreateTimeEntryTable(Migration):
         Run the migrations.
         """
         with self.schema.create('time_entry') as table:
+            table.increments('id')
             table.string('clockify_id').primary()
             table.string('member_id')
             table.foreign('member_id').references('clockify_id').on('member')
