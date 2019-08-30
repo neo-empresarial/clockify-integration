@@ -9,6 +9,7 @@ __pycache__/
 *$py.class
 
 .vscode/
+orator.py
 
 # Chalice
 .chalice/deployments/
