@@ -21,9 +21,13 @@ provider:
     CLOCKIFY_WORKSPACE_ID:  ${env:CLOCKIFY_WORKSPACE_ID}
     CLOCKIFY_API_KEY: ${env:CLOCKIFY_API_KEY}
     SENDGRID_API_KEY:  ${env:SENDGRID_API_KEY}
-    AWS_DEFAULT_REGION:  ${env:AWS_DEFAULT_REGION}
-    
+
+plugins:
+  - serverless-python-requirements
+
 custom:
+  pythonRequirements:
+    dockerizePip: non-linux
   clockify:
     Fn::Join:
       - ":"
@@ -35,12 +39,11 @@ custom:
         - clockify
 
 functions:
-  periodic_handler:
-    name: PeriodicHandler
+  daily_trigger:
+    name: daily_trigger
     handler: handler.periodic_handler
     events:
-      - schedule: cron(0 6 * * ? *)
-      - schedule: rate(1 minute)
+      - schedule: cron(0 6-19 * * ? *)
 
   update_users:
     name: 
