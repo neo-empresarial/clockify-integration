@@ -1,44 +1,98 @@
-service: neo-data
+service: clockify-integration
 
 provider:
-  name: google
-  stage: dev
-  runtime: python37
-  region: us-central1
-  project: my-project
-  # The GCF credentials can be a little tricky to set up. Luckily we've documented this for you here:
-  # https://serverless.com/framework/docs/providers/google/guide/credentials/
-  #
-  # the path to the credentials file needs to be absolute
-  credentials: ~/.gcloud/keyfile.json
-
-plugins:
-  - serverless-google-cloudfunctions
-
-package:
-  exclude:
-    - node_modules/**
-    - .gitignore
-    - .git/**
+  name: aws
+  runtime: python3.7
+  timeout: 180
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - "sns:Publish"
+      Resource:
+        - ${self:custom.clockify}
+  environment:
+    DB_HOSTNAME: ${env:DB_HOSTNAM}
+    DB_NAME:  ${env:DB_NAME}
+    DB_USERNAME:  ${env:DB_USERNAME}
+    DB_PASSWORD:  ${env:DB_PASSWORD}
+    DB_PORT:  ${env:DB_PORT}
+    DB_URI: ${env:DB_URI}
+    ENVIRONMENT:  ${env:ENVIRONMENT}
+    CLOCKIFY_WORKSPACE_ID:  ${env:CLOCKIFY_WORKSPACE_ID}
+    CLOCKIFY_API_KEY: ${env:CLOCKIFY_API_KEY}
+    SENDGRID_API_KEY:  ${env:SENDGRID_API_KEY}
+    AWS_DEFAULT_REGION:  ${env:AWS_DEFAULT_REGION}
+    
+custom:
+  clockify:
+    Fn::Join:
+      - ":"
+      - - arn
+        - aws
+        - sns
+        - Ref: AWS::Region
+        - Ref: AWS::AccountId
+        - clockify
 
 functions:
-  update_time_entries:
-    handler: update_time_entries
+  periodic_handler:
+    name: PeriodicHandler
+    handler: handler.periodic_handler
     events:
-      - http: path
+      - schedule: cron(0 6 * * ? *)
+      - schedule: rate(1 minute)
+
   update_users:
-    handler: update_users
+    name: 
+    handler: handler.update_users
     events:
-      - http: path
+      - sns:
+          topicName: clockify
+          displayName: Clockify integration events
+          filterPolicy:
+            task:
+              - users
+
   update_projects:
-    handler: update_projects
+    name: 
+    handler: handler.update_projects
     events:
-      - http: path
+      - sns:
+          topicName: clockify
+          displayName: Clockify integration events
+          filterPolicy:
+            task:
+              - projects
+
   update_activities:
-    handler: update_activities
+    name: 
+    handler: handler.update_activities
     events:
-      - http: path
+      - sns:
+          topicName: clockify
+          displayName: Clockify integration events
+          filterPolicy:
+            task:
+              - activities
+
   update_tags:
-    handler: update_activities
+    name: 
+    handler: handler.update_tags
     events:
-      - http: path
+      - sns:
+          topicName: clockify
+          displayName: Clockify integration events
+          filterPolicy:
+            task:
+              - tags
+
+  update_time_entries:
+    name: 
+    handler: handler.update_time_entries
+    events:
+      - sns:
+          topicName: clockify
+          displayName: Clockify integration events
+          filterPolicy:
+            task:
+              - time_entries

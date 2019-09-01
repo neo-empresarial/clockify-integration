@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e58c701602522dfbacf61a428943801b62082ed471f711e97c9931578a773f5a"
+            "sha256": "9452496eb0e81d05f0cf062d69c01590bf36028056ca4084d42e9c2d7e604e39"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -42,12 +42,20 @@
             ],
             "version": "==1.4"
         },
+        "boto3": {
+            "hashes": [
+                "sha256:654c7ebd6d089d5af634a8121f3960e50e283643660abcba07e602ac237f4839",
+                "sha256:f114b586c307f73a46d6dfe9dfb1c37865354f48fc749794d96517527424d1f5"
+            ],
+            "index": "pypi",
+            "version": "==1.9.220"
+        },
         "botocore": {
             "hashes": [
-                "sha256:aba87b5c594ec33deb679eda0a19b32e654bf781ff1dd8f1b53dffcd7c8a4dd9",
-                "sha256:c66f4ffccb57dcca45b0f279e7fafc0ee83dab2a37aaeb047acb2543c8408439"
+                "sha256:748fe4ee5cc8b10ef09e52c740b488402d6f6d4d1f0dde0c936da232b42b1bdd",
+                "sha256:9ffd9264e4ad999d2929cfe1c7e413d4cdf76a8bd92f011dce31874f056d2e18"
             ],
-            "version": "==1.12.218"
+            "version": "==1.12.220"
         },
         "certifi": {
             "hashes": [
@@ -279,10 +287,10 @@
         },
         "pytest": {
             "hashes": [
-                "sha256:95b1f6db806e5b1b5b443efeb58984c24945508f93a866c1719e1a507a957d7c",
-                "sha256:c3d5020755f70c82eceda3feaf556af9a341334414a8eca521a18f463bcead88"
+                "sha256:95d13143cc14174ca1a01ec68e84d76ba5d9d493ac02716fd9706c949a505210",
+                "sha256:b78fe2881323bd44fd9bd76e5317173d4316577e7b1cddebae9136a4495ec865"
             ],
-            "version": "==5.1.1"
+            "version": "==5.1.2"
         },
         "pytest-chalice": {
             "hashes": [
@@ -352,6 +360,13 @@
             ],
             "index": "pypi",
             "version": "==2.22.0"
+        },
+        "s3transfer": {
+            "hashes": [
+                "sha256:6efc926738a3cd576c2a79725fed9afde92378aa5c6a957e3af010cb019fac9d",
+                "sha256:b780f2411b824cb541dbcd2c713d0cb61c7d1bcadae204cdddda2b35cef493ba"
+            ],
+            "version": "==0.2.1"
         },
         "sendgrid": {
             "hashes": [
