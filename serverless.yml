@@ -45,7 +45,7 @@ functions:
     events:
       - schedule: cron(0 6-19 * * ? *)
 
-  update_users:
+  users:
     name: 
     handler: handler.update_users
     events:
@@ -56,7 +56,7 @@ functions:
             task:
               - users
 
-  update_projects:
+  projects:
     name: 
     handler: handler.update_projects
     events:
@@ -67,7 +67,7 @@ functions:
             task:
               - projects
 
-  update_activities:
+  activities:
     name: 
     handler: handler.update_activities
     events:
@@ -78,7 +78,7 @@ functions:
             task:
               - activities
 
-  update_tags:
+  tags:
     name: 
     handler: handler.update_tags
     events:
@@ -89,7 +89,7 @@ functions:
             task:
               - tags
 
-  update_time_entries:
+  time_entries:
     name: 
     handler: handler.update_time_entries
     events:
