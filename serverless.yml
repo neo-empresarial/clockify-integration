@@ -11,7 +11,7 @@ provider:
       Resource:
         - ${self:custom.clockify}
   environment:
-    DB_HOSTNAME: ${env:DB_HOSTNAM}
+    DB_HOSTNAME: ${env:DB_HOSTNAME}
     DB_NAME:  ${env:DB_NAME}
     DB_USERNAME:  ${env:DB_USERNAME}
     DB_PASSWORD:  ${env:DB_PASSWORD}
