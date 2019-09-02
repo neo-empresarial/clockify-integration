@@ -41,6 +41,7 @@ custom:
 
 functions:
   daily_trigger:
+    reservedConcurrency: 5
     name: daily_trigger
     handler: handler.periodic_handler
     events:
@@ -48,6 +49,7 @@ functions:
       - schedule: rate(1 minute)
 
   users:
+    reservedConcurrency: 5
     name: 
     handler: handler.update_users
     events:
@@ -59,6 +61,7 @@ functions:
               - users
 
   projects:
+    reservedConcurrency: 5
     name: 
     handler: handler.update_projects
     events:
@@ -70,6 +73,7 @@ functions:
               - projects
 
   activities:
+    reservedConcurrency: 5
     name: 
     handler: handler.update_activities
     events:
@@ -81,6 +85,7 @@ functions:
               - activities
 
   tags:
+    reservedConcurrency: 5
     name: 
     handler: handler.update_tags
     events:
@@ -92,6 +97,7 @@ functions:
               - tags
 
   time_entries:
+    reservedConcurrency: 5
     name: 
     handler: handler.update_time_entries
     events:
