@@ -1,5 +1,6 @@
 import boto3
 import os
+from config import settings
 from models import Activity, Client, Member, Project, TimeEntry
 from services import EmailSender
 
@@ -8,7 +9,7 @@ tasks = ["users", "projects", "activities", "tags", "time_entries"]
 
 
 def periodic_handler(event, context):
-    sns_publisher(event, context, "time_entries")
+    sns_publisher(event, context, "users")
 
 
 def sns_publisher(event, context, task):
@@ -28,40 +29,33 @@ def sns_publisher(event, context, task):
 
 
 def update_users(event, context):
-    try:
-        Member.save_from_clockify()
-    except Exception:
-        sns_publisher(event, context, "time_entries")
+    Member.save_from_clockify()
+    sns_publisher(event, context, "projects")
 
 
 def update_projects(event, context):
-    try:
-        Project.save_from_clockify()
-    except Exception:
-        sns_publisher(event, context, "time_entries")
+    Project.save_from_clockify()
+    sns_publisher(event, context, "activities")
 
 
 def update_activities(event, context):
-    try:
-        Activity.save_from_clockify()
-    except Exception:
-        sns_publisher(event, context, "time_entries")
+    Activity.save_from_clockify()
+    sns_publisher(event, context, "tags")
 
 
 def update_tags(event, context):
-    try:
-        Client.save_from_clockify()
-    except Exception:
-        sns_publisher(event, context, "time_entries")
+    Client.save_from_clockify()
+    sns_publisher(event, context, "time_entries")
 
 
 def update_time_entries(event, context):
-    try:
-        TimeEntry.save_from_clockify()
-    except Exception as e:
-        print(e)
-        # for task in tasks[:-1]:
-        #     sns_publisher(event, context, task)
+    TimeEntry.save_from_clockify()
+    # try:
+    #     pass
+    # except Exception as e:
+    #     print(e)
+    # for task in tasks[:-1]:
+    #     sns_publisher(event, context, task)
 
 
 def email_on_success(event, context):
