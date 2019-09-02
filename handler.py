@@ -58,9 +58,10 @@ def update_tags(event, context):
 def update_time_entries(event, context):
     try:
         TimeEntry.save_from_clockify()
-    except Exception:
-        for task in tasks[:-1]:
-            sns_publisher(event, context, task)
+    except Exception as e:
+        print(e)
+        # for task in tasks[:-1]:
+        #     sns_publisher(event, context, task)
 
 
 def email_on_success(event, context):
