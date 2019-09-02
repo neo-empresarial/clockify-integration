@@ -1,1 +1,1 @@
-from email_sender import EmailSender
+from .email_sender import EmailSender

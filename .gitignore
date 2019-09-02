@@ -9,7 +9,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Serverless
 .serverless/
+node_modules/
 
 .vscode/
 orator.py

@@ -3,7 +3,7 @@ import os
 
 
 def create_sns_topic():
-    sns = boto3.client("sns", region_name=os.getenv("AWS_DEFAULT_REGION"))
+    sns = boto3.client("sns", region_name='us-east-1')
     return sns.create_topic(Name="neo-data")
 
 
