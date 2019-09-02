@@ -1,5 +1,5 @@
 from orator import Model
-from models import API_URL, WORKSPACE_ID, HEADERS
+from models import V1_API_URL, WORKSPACE_ID, HEADERS
 import requests
 
 
@@ -13,7 +13,7 @@ class Client(Model):
     def save_from_clockify(cls):
         """Check if all tags in clockify are register as clients in the database.
         Create a new client if necessary."""
-        tags = cls.parse_all_tags()
+        tags = cls.fetch_all_tags()
         for tag in tags:
             client = Client.where("clockify_id", tag["clockify_id"]).first()
             if client is None:
@@ -21,13 +21,13 @@ class Client(Model):
         return tags
 
     @staticmethod
-    def parse_all_tags():
+    def fetch_all_tags():
         """Find all tags from Clockify on NEO's workspace.
 
         Returns list of dictionaries containing "clockify_id" and "name"
         of every tag."""
 
-        url = "{}/workspaces/{}/tags".format(API_URL, WORKSPACE_ID)
+        url = "{}/workspaces/{}/tags".format(V1_API_URL, WORKSPACE_ID)
         responses = requests.get(url, headers=HEADERS)
         return [
             {"clockify_id": client["id"], "name": client["name"]}
