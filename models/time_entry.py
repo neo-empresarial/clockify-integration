@@ -1,7 +1,7 @@
 from orator import Model
 from orator.orm import belongs_to
 from models import Activity, Client, Member, Project
-from models import V1_API_URL, WORKSPACE_ID, HEADERS
+from .config import V1_API_URL, WORKSPACE_ID, HEADERS
 import requests
 
 
