@@ -15,7 +15,7 @@ def sns_publisher(event, context, task):
     sns = boto3.client("sns")
 
     context_parts = context.invoked_function_arn.split(":")
-    topic_name = os.getenv("sns_topic_name")
+    topic_name = os.getenv("SNS_TOPIC_NAME")
     topic_arn = "arn:aws:sns:{region}:{account_id}:{topic}".format(
         region=context_parts[3], account_id=context_parts[4], topic=topic_name
     )

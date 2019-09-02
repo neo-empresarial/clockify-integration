@@ -7,6 +7,7 @@ verify_ssl = true
 black = "*"
 pre-commit = "*"
 pylint = "*"
+pdoc3 = "*"
 
 [packages]
 python-dotenv = "*"
@@ -16,6 +17,7 @@ requests = "*"
 sendgrid = "*"
 chalice = "*"
 boto3 = "*"
+pdoc3 = "*"
 
 [requires]
 python_version = "3.7"
