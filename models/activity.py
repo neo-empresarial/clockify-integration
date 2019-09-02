@@ -1,6 +1,6 @@
 from itertools import chain
 from orator import Model
-from models import API_URL, WORKSPACE_ID, HEADERS
+from models import V1_API_URL, WORKSPACE_ID, HEADERS
 import requests
 
 
@@ -38,7 +38,7 @@ class Activity(Model):
         Returns list of dictionaries containing "name" of every task."""
 
         url = "{}/workspaces/{}/projects/{}/tasks".format(
-            API_URL, WORKSPACE_ID, project_id
+            V1_API_URL, WORKSPACE_ID, project_id
         )
         responses = requests.get(url, headers=HEADERS)
         return [task["name"] for task in responses.json()]
@@ -49,7 +49,7 @@ class Activity(Model):
 
         This is used later to get all workspaces tasks"""
 
-        url = "{}/workspaces/{}/projects".format(API_URL, WORKSPACE_ID)
+        url = "{}/workspaces/{}/projects".format(V1_API_URL, WORKSPACE_ID)
         responses = requests.get(url, headers=HEADERS)
         return [
             {"clockify_id": project["id"], "name": project["name"]}

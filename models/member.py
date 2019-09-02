@@ -1,5 +1,5 @@
 from orator import Model
-from models import API_URL, WORKSPACE_ID, HEADERS
+from models import V1_API_URL, WORKSPACE_ID, HEADERS
 import requests
 
 
@@ -31,7 +31,7 @@ class Member(Model):
         Returns list of dictionaries containing "acronym", "clockify_id" and "email"
         of every user."""
 
-        url = "{}/workspace/{}/users".format(API_URL, WORKSPACE_ID)
+        url = "{}/workspace/{}/users".format(V1_API_URL, WORKSPACE_ID)
         responses = requests.get(url, headers=HEADERS)
         return [
             {"acronym": user["name"], "clockify_id": user["id"], "email": user["email"]}
