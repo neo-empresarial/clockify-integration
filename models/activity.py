@@ -14,7 +14,7 @@ class Activity(Model):
     def save_from_clockify(cls):
         """Check if all tasks in clockify are register as activities in the database.
         Create a new activity if necessary."""
-        tasks = cls.get_all_tasks()
+        tasks = cls.fetch_all_task()
         for task in tasks:
             activity = Activity.where("name", task).first()
             if activity is None:
@@ -22,15 +22,17 @@ class Activity(Model):
         return tasks
 
     @classmethod
-    def get_all_tasks(cls):
-        """Get all unique tasks from clockify"""
-        projects_ids = [x["clockify_id"] for x in cls.get_all_projects_id()]
-        tasks = list(map(cls.get_all_project_tasks, projects_ids))
+    def fetch_all_task(cls):
+        """Find all unique tasks from all project of Clockify on NEO's workspace.
+
+        Returns list of dictionaries containing "name" of every task."""
+        projects_ids = [project["clockify_id"] for project in cls.get_all_projects_id()]
+        tasks = list(map(cls.fetch_project_tasks, projects_ids))
         unique_tasks = list(set(chain.from_iterable(tasks)))
         return unique_tasks
 
     @staticmethod
-    def get_all_project_tasks(project_id):
+    def fetch_project_tasks(project_id):
         """Find all tasks from one project of Clockify on NEO's workspace.
 
         Returns list of dictionaries containing "name" of every task."""

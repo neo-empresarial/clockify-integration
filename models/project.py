@@ -13,7 +13,7 @@ class Project(Model):
     def save_from_clockify(cls):
         """Check if all projects in clockify are register as projects in the database.
         Create a new project if necessary."""
-        projects = cls.parse_all_projects()
+        projects = cls.fetch_all_projects()
         for project in projects:
             db_project = Project.where("clockify_id", project["clockify_id"]).first()
             if db_project is None:
@@ -21,7 +21,7 @@ class Project(Model):
         return projects
 
     @staticmethod
-    def parse_all_projects():
+    def fetch_all_projects():
         """Find all projects on NEO's workspace.
 
         Returns list of dictionaries containing "name", "clockify_id"
