@@ -17,7 +17,6 @@ requests = "*"
 sendgrid = "*"
 chalice = "*"
 boto3 = "*"
-pdoc3 = "*"
 
 [requires]
 python_version = "3.7"
