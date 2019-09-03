@@ -15,9 +15,8 @@ class Project(Model):
         Create a new project if necessary."""
         projects = cls.fetch_all_projects()
         for project in projects:
-            db_project = Project.where("clockify_id", project["clockify_id"]).first()
-            if db_project is None:
-                Project.create(clockify_id=project["clockify_id"], name=project["name"])
+            Project.update_or_create({"clockify_id":project["clockify_id"]},
+                                     {"name":project["name"]})
         return projects
 
     @staticmethod

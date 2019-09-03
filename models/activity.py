@@ -16,9 +16,7 @@ class Activity(Model):
         Create a new activity if necessary."""
         tasks = cls.fetch_all_task()
         for task in tasks:
-            activity = Activity.where("name", task).first()
-            if activity is None:
-                Activity.create(name=task)
+            Activity.first_or_create(name=task)
         return tasks
 
     @classmethod
