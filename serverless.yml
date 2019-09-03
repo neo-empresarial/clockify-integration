@@ -21,6 +21,7 @@ provider:
     CLOCKIFY_WORKSPACE_ID:  ${env:CLOCKIFY_WORKSPACE_ID}
     CLOCKIFY_API_KEY: ${env:CLOCKIFY_API_KEY}
     SENDGRID_API_KEY:  ${env:SENDGRID_API_KEY}
+    SNS_TOPIC_NAME: ${env:SNS_TOPIC_NAME}
 
 plugins:
   - serverless-python-requirements
@@ -43,7 +44,7 @@ functions:
     name: daily_trigger
     handler: handler.periodic_handler
     events:
-      - schedule: cron(0 6-19 * * ? *)
+      - schedule: cron(*/15 6-19 * * ? *)
 
   users:
     name: 

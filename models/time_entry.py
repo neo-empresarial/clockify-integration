@@ -1,7 +1,7 @@
 from orator import Model
 from orator.orm import belongs_to
 from models import Activity, Client, Member, Project
-from models import V1_API_URL, WORKSPACE_ID, HEADERS
+from .config import V1_API_URL, WORKSPACE_ID, HEADERS
 import requests
 
 
@@ -41,7 +41,7 @@ class TimeEntry(Model):
     def save_from_clockify():
         for member in Member.all():
             url = "{}/workspaces/{}/user/{}/time-entries?hydrated=true&page-size=1000&start=2019-08-05T00:00:01Z".format(
-                V1_API_URL, WORKSPACE_ID, member["clockify_id"]
+                V1_API_URL, WORKSPACE_ID, member.clockify_id
             )
             time_entries = requests.get(url, headers=HEADERS)
             for time_entry in time_entries.json():

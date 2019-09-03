@@ -7,6 +7,7 @@ verify_ssl = true
 black = "*"
 pre-commit = "*"
 pylint = "*"
+pdoc3 = "*"
 
 [packages]
 python-dotenv = "*"

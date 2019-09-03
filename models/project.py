@@ -1,5 +1,5 @@
 from orator import Model
-from models import V1_API_URL, WORKSPACE_ID, HEADERS
+from .config import V1_API_URL, WORKSPACE_ID, HEADERS
 import requests
 
 
