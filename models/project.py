@@ -15,8 +15,8 @@ class Project(Model):
         Create a new project if necessary."""
         projects = cls.fetch_all_projects()
         for project in projects:
-            Project.update_or_create({"clockify_id":project["clockify_id"]},
-                                     {"name":project["name"]})
+            Project.update_or_create({"clockify_id": project["clockify_id"]},
+                                     {"name": project["name"]})
         return projects
 
     @staticmethod

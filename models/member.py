@@ -15,9 +15,9 @@ class Member(Model):
         Create a new member if necessary."""
         users = cls.fetch_all_users()
         for user in users:
-            Member.update_or_create({"clockify_id":user["clockify_id"]},
-                                    {"acronym":user["acronym"],
-                                     "email":user["email"]})
+            Member.update_or_create({"clockify_id": user["clockify_id"]},
+                                    {"acronym": user["acronym"],
+                                     "email": user["email"]})
         return users
 
     @staticmethod
