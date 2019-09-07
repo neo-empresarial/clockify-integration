@@ -8,7 +8,6 @@ black = "*"
 pre-commit = "*"
 pylint = "*"
 pdoc3 = "*"
-autopep8 = "*"
 
 [packages]
 python-dotenv = "*"
