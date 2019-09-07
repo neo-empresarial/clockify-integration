@@ -15,8 +15,8 @@ class Client(Model):
         Create a new client if necessary."""
         tags = cls.fetch_all_tags()
         for tag in tags:
-            Client.update_or_create({"clockify_id":tag["clockify_id"]},
-                                    {"name":tag["name"]})
+            Client.update_or_create({"clockify_id": tag["clockify_id"]},
+                                    {"name": tag["name"]})
         return tags
 
     @staticmethod
