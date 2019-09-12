@@ -39,7 +39,7 @@ class TimeEntry(Model):
         return Client
 
     @classmethod
-    def company_id_by_project_name(cls, project_name):
+    def find_company_id(cls, project_name):
         """Returns clockify_id from company based on the project name"""
         if project_name[0] == "C":
             return Client.where("name", "CERTI").first().clockify_id
@@ -84,9 +84,9 @@ class TimeEntry(Model):
             # Send report to user; Change on clockify
             print("Missing tag for company project")
             print(time_entry)
-            return cls.company_id_by_project_name(project_name)
+            return cls.find_company_id(project_name)
         elif not tag_is_empty and is_company_project:
-            company_tag_id = cls.company_id_by_project_name(project_name)
+            company_tag_id = cls.find_company_id(project_name)
             if time_entry["tags"][0]["id"] != company_tag_id:
                 # Send report to user; Change on clockify
                 print("Client is different than expected")
