@@ -42,15 +42,15 @@ class TimeEntry(Model):
     def find_company_id(project_name):
         """Returns clockify_id from company based on the project name"""
         if project_name[0] == "C":
-            return Client.where("name", "CERTI").first().clockify_id
+            return Client.where("name", "CERTI").first().id
         elif project_name[0] == "E":
-            return Client.where("name", "Embraco").first().clockify_id
+            return Client.where("name", "Embraco").first().id
         elif project_name[0] == "N":
-            return Client.where("name", "NEO").first().clockify_id
+            return Client.where("name", "NEO").first().id
         elif project_name[0] == "T":
-            return Client.where("name", "Tupy").first().clockify_id
+            return Client.where("name", "Tupy").first().id
         elif project_name[0] == "W":
-            return Client.where("name", "WEG").first().clockify_id
+            return Client.where("name", "WEG").first().id
         else:
             print(project_name)
             raise ReferenceError("No client starts with this letter")
@@ -83,21 +83,22 @@ class TimeEntry(Model):
             print(time_entry)
             return cls.find_company_id(project_name)
         elif not tag_is_empty and is_company_project:
-            company_tag_id = cls.find_company_id(project_name)
-            if time_entry["tags"][0]["id"] != company_tag_id:
+            expected_company_tag_id = cls.find_company_id(project_name)
+            company_tag_id = Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
+            if company_tag_id != expected_company_tag_id:
                 # Send report to user; Change on clockify
                 print("Client is different than expected")
                 print(time_entry)
-            return company_tag_id
+            return expected_company_tag_id
         elif not tag_is_empty and not is_company_project:
             # Here we could check alot of stuff
             # like Neócio or if the task of the time entry can have this task.
-            return time_entry["tags"][0]["id"]
+            return Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
         elif tag_is_empty and not is_company_project:
             print("Missing tag for a project that is not a company project. Assuming tag is NEO")
             print(time_entry)
             # Send report to user; Change on clockify
-            return Client.where("name", "NEO").first().clockify_id
+            return Client.where("name", "NEO").first().id
 
     @staticmethod
     def check_to_long_time_entry(parameter_list):
@@ -113,8 +114,8 @@ class TimeEntry(Model):
             for time_entry in time_entries.json():
                 if time_entry["timeInterval"]["end"] is not None:
                     clockify_id = time_entry["id"]
-                    member_id = time_entry["userId"]
-                    project_id = time_entry["projectId"]
+                    member_id = Member.where("clockify_id", time_entry["userId"]).first().id
+                    project_id = Project.where("clockify_id", time_entry["projectId"]).first().id
                     try:
                         activity_id = Activity.where("name", time_entry["task"]["name"]).first().id
                     except TypeError:
