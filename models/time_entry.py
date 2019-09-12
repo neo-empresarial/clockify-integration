@@ -68,10 +68,7 @@ class TimeEntry(Model):
     def is_company_project(cls, project_name):
         """Check if this is a company project.
            Company projects starts with a letter followed by numbers (e.g. 'W101')"""
-        match = re.search("^([A-Z])\d+", project_name)
-        if match is not None:
-            return True
-        return False
+        return bool(re.search("^([A-Z])\d+", project_name))
 
     @classmethod
     def correct_empty_or_wrong_tag(cls, time_entry):
