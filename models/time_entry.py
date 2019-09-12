@@ -38,8 +38,8 @@ class TimeEntry(Model):
     def client(self):
         return Client
 
-    @classmethod
-    def find_company_id(cls, project_name):
+    @staticmethod
+    def find_company_id(project_name):
         """Returns clockify_id from company based on the project name"""
         if project_name[0] == "C":
             return Client.where("name", "CERTI").first().clockify_id
@@ -55,8 +55,8 @@ class TimeEntry(Model):
             print(project_name)
             raise ReferenceError("No client starts with this letter")
 
-    @classmethod
-    def tag_is_empty(cls, time_entry):
+    @staticmethod
+    def tag_is_empty(time_entry):
         """Check if the time entry has an empty tag"""
         try:
             tag_id = time_entry["tags"][0]["id"]
@@ -64,8 +64,8 @@ class TimeEntry(Model):
         except IndexError:
             return True
 
-    @classmethod
-    def is_company_project(cls, project_name):
+    @staticmethod
+    def is_company_project(project_name):
         """Check if this is a company project.
            Company projects starts with a letter followed by numbers (e.g. 'W101')"""
         return bool(re.search("^([A-Z])\d+", project_name))
@@ -99,7 +99,7 @@ class TimeEntry(Model):
             # Send report to user; Change on clockify
             return Client.where("name", "NEO").first().clockify_id
 
-    @classmethod
+    @staticmethod
     def check_to_long_time_entry(parameter_list):
         pass
 
