@@ -56,7 +56,7 @@ class TimeEntry(Model):
             raise ReferenceError("No client starts with this letter")
 
     @classmethod
-    def is_empty_tag(cls, time_entry):
+    def tag_is_empty(cls, time_entry):
         """Check if the time entry has an empty tag"""
         try:
             tag_id = time_entry["tags"][0]["id"]
@@ -78,25 +78,25 @@ class TimeEntry(Model):
         """Check if the tag is empty and if the time entry is for a company project.
            With that it can sometimes correct the tag."""
         project_name = Project.where("clockify_id", time_entry["projectId"]).first().name
-        is_empty_tag = cls.is_empty_tag(time_entry)
+        tag_is_empty = cls.tag_is_empty(time_entry)
         is_company_project = cls.is_company_project(project_name)
-        if is_empty_tag and is_company_project:
+        if tag_is_empty and is_company_project:
             # Send report to user; Change on clockify
             print("Missing tag for company project")
             print(time_entry)
             return cls.company_id_by_project_name(project_name)
-        elif not is_empty_tag and is_company_project:
+        elif not tag_is_empty and is_company_project:
             company_tag_id = cls.company_id_by_project_name(project_name)
             if time_entry["tags"][0]["id"] != company_tag_id:
                 # Send report to user; Change on clockify
                 print("Client is different than expected")
                 print(time_entry)
             return company_tag_id
-        elif not is_empty_tag and not is_company_project:
+        elif not tag_is_empty and not is_company_project:
             # Here we could check alot of stuff
             # like Neócio or if the task of the time entry can have this task.
             return time_entry["tags"][0]["id"]
-        elif is_empty_tag and not is_company_project:
+        elif tag_is_empty and not is_company_project:
             print("Missing tag for a project that is not a company project. Assuming tag is NEO")
             print(time_entry)
             # Send report to user; Change on clockify
