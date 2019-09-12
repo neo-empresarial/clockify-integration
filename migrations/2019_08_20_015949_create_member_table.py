@@ -8,7 +8,7 @@ class CreateMemberTable(Migration):
         """
         with self.schema.create("member") as table:
             table.increments("id")
-            table.string("clockify_id").unique()
+            table.string("clockify_id").unique().nullable()
             table.string("acronym")
             table.string("email")
             table.timestamps()
