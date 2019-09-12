@@ -38,53 +38,68 @@ class TimeEntry(Model):
     def client(self):
         return Client
 
-    @classmethod
-    def check_company_project(cls, match):
-        if match[0][0] == "C":
+    @staticmethod
+    def find_company_id(project_name):
+        """Returns clockify_id from company based on the project name"""
+        if project_name[0] == "C":
             return Client.where("name", "CERTI").first().clockify_id
-        elif match[0][0] == "E":
+        elif project_name[0] == "E":
             return Client.where("name", "Embraco").first().clockify_id
-        elif match[0][0] == "N":
+        elif project_name[0] == "N":
             return Client.where("name", "NEO").first().clockify_id
-        elif match[0][0] == "T":
+        elif project_name[0] == "T":
             return Client.where("name", "Tupy").first().clockify_id
-        elif match[0][0] == "W":
+        elif project_name[0] == "W":
             return Client.where("name", "WEG").first().clockify_id
         else:
-            print(match)
+            print(project_name)
             raise ReferenceError("No client starts with this letter")
 
-    @classmethod
-    def correct_empty_wrong_tag(cls, time_entry):
+    @staticmethod
+    def tag_is_empty(time_entry):
+        """Check if the time entry has an empty tag"""
         try:
-            client_id = time_entry["tags"][0]["id"]
-            project_name = Project.where("clockify_id", time_entry["projectId"]).first().name
-            match = re.search("^([A-Z])\d+", project_name)
-            if match is None:
-                return client_id
-            else:
-                project_client_id = cls.check_company_project(match)
-                if project_client_id != client_id:
-                    # Change on clockify
-                    print("client different than expected")
-                    print(time_entry)
-                return project_client_id
+            tag_id = time_entry["tags"][0]["id"]
+            return False
         except IndexError:
-            print("No tag")
-            project_name = Project.where("clockify_id", time_entry["projectId"]).first().name
-            match = re.search("^([A-Z])\d+", project_name)
-            if match is None:
-                # Change on clockify and send report to member
-                print("This is not a company project")
-                print(time_entry)
-                return Client.where("name", "NEO").first().clockify_id
-            else:
-                # Change on clockify
-                print("This is a company project")
-                print(time_entry)
-                return cls.check_company_project(match)
+            return True
+
+    @staticmethod
+    def is_company_project(project_name):
+        """Check if this is a company project.
+           Company projects starts with a letter followed by numbers (e.g. 'W101')"""
+        return bool(re.search("^([A-Z])\d+", project_name))
 
     @classmethod
+    def correct_empty_or_wrong_tag(cls, time_entry):
+        """Check if the tag is empty and if the time entry is for a company project.
+           With that it can sometimes correct the tag."""
+        project_name = Project.where("clockify_id", time_entry["projectId"]).first().name
+        tag_is_empty = cls.tag_is_empty(time_entry)
+        is_company_project = cls.is_company_project(project_name)
+        if tag_is_empty and is_company_project:
+            # Send report to user; Change on clockify
+            print("Missing tag for company project")
+            print(time_entry)
+            return cls.find_company_id(project_name)
+        elif not tag_is_empty and is_company_project:
+            company_tag_id = cls.find_company_id(project_name)
+            if time_entry["tags"][0]["id"] != company_tag_id:
+                # Send report to user; Change on clockify
+                print("Client is different than expected")
+                print(time_entry)
+            return company_tag_id
+        elif not tag_is_empty and not is_company_project:
+            # Here we could check alot of stuff
+            # like Neócio or if the task of the time entry can have this task.
+            return time_entry["tags"][0]["id"]
+        elif tag_is_empty and not is_company_project:
+            print("Missing tag for a project that is not a company project. Assuming tag is NEO")
+            print(time_entry)
+            # Send report to user; Change on clockify
+            return Client.where("name", "NEO").first().clockify_id
+
+    @staticmethod
     def check_to_long_time_entry(parameter_list):
         pass
 
@@ -108,7 +123,7 @@ class TimeEntry(Model):
                         # Send report to member
                         continue
                     try:
-                        client_id = cls.correct_empty_wrong_tag(time_entry)
+                        client_id = cls.correct_empty_or_wrong_tag(time_entry)
                     except ReferenceError:
                         print(time_entry)
                         print("New Company, code needs to be updated")
