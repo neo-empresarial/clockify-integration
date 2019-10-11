@@ -1,21 +1,11 @@
 import os
 import pandas as pd
+from datetime import datetime, timedelta
 #import dateutil.parser as parser
 # from __somewherewedunno__ import TimeEntry
 
-def calculate_end(row):
-    minutes = []
-    for time in row[4:]:
-        minutes = time * 50
 
-    print(minutes)
-    return 0
-    '''end_hour = minutes / 60
-    end_minutes = minutes % 60
-    end = str(end_hour)+ ':' + str(end_minutes)
-'''
-
-def clean_df(df, year):
+def clean_timesheet(df, year):
 
     header = df.iloc[3]
     header = header[:5].append(header[5:-1].apply(lambda x: x[:5].replace('/','-') + '-' + year))
@@ -27,21 +17,31 @@ def clean_df(df, year):
     df.update(df.fillna(0))
     return df
 
+header_TimeEntry = {'member_acronym': '', 'member_id': '', 'project_name': '',
+                     'project_id': '', 'activity_name': '','activity_id': '',
+                     'client_name': '', 'client_id': '', 'start': '', 'end': ''}
 
+TimeEntry = pd.DataFrame(columns=header_TimeEntry)
 
-#starts the code
-df = pd.read_excel(r'D:\Desktop\UFSC\Monitoramento_de_horas_20191.xlsx')
-df = clean_df(df, '2019')
-print(df)
-'''
-for row in df.itertuples(index=False):
-    # TimeEntry.create({
-    #     "member_id": Member.first_or_create(acronym=row[0]).id,
-    #     "project_id": Project.first_or_create(name=row[1]).id,
-    #     "activity_id": Activity.first_or_create(name=row[2]).id,
-    #     "client_id": Client.first_or_create(name=row[3]).id,
-    #     "start": parser.parse(df.columns[4]),  # colocaremos no domingo
-    #     "end": end
-    #     })
-    pass
-'''
+timesheet = pd.read_excel(r'D:\Desktop\UFSC\Monitoramento_de_horas_20191.xlsx')
+timesheet = clean_timesheet(timesheet, '2019')
+timesheet_collumns = list(timesheet.iloc[:, 4:6])
+
+for key, row in timesheet.iterrows():
+    member_acrony = row[0]
+    project_name = row[1]
+    activity_name = row[2]
+    client_name = row[3]
+
+    for column in timesheet_collumns:
+        if row[column] > 0:
+            print('here')
+            time_hours = (row[column] * 50) // 60
+            time_minutes = (row[column] * 50) % 60
+            start = datetime.strptime(column, "%d-%m-%Y")-timedelta(days = 1)
+            end = start+timedelta(hours=time_hours, minutes=time_minutes)
+
+            TimeEntry = TimeEntry.append({'member_acrony': member_acrony, 'project_name': project_name,
+                            'activity_name': activity_name, 'client_name': client_name,
+                            'start': start, 'end': end}, ignore_index=True)
+print(TimeEntry)
