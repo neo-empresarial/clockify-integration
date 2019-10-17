@@ -1,9 +1,9 @@
-import os
-import glob
-import pandas as pd
 from datetime import datetime, timedelta
 from config import settings
 from models import Activity, Client, Member, Project, TimeEntry
+import os
+import glob
+import pandas as pd
 #import dateutil.parser as parser
 
 
@@ -16,8 +16,8 @@ def clean_timesheet(df, year):
         if head == 'Soma':
             last_index = i - 1
             break
-
-    header = header[:5].append(header[5:last_index].apply(lambda x: x[:5].replace('/','-') + '-' + year))
+    dates = header[5:last_index].apply(lambda x: x[:5].replace('/','-') + '-' + year)
+    header = header[:5].append(dates)
     df = df[4:][df.columns[:last_index]]
     df = df.rename(columns = header)
     df = df.drop(['Curso'], axis=1)
@@ -25,7 +25,7 @@ def clean_timesheet(df, year):
     df.update(df.fillna(0))
     return df
 
-def update_TimeEntry(TimeEntry, semester, path):
+def update_time_entry(time_entry, semester, path):
     '''Receive the Time Entry to update with the 
     values of the timesheet in path of the year.'''
 
@@ -55,7 +55,7 @@ def update_TimeEntry(TimeEntry, semester, path):
                     client_name = row[3].lower()
 
         if (client_name == 0 or activity_name == 0 or project_name == 0):
-            TimeEntry.drop(key, inplace=True)
+            time_entry.drop(key, inplace=True)
         
         else:
             for column in timesheet_collumns:
@@ -74,16 +74,16 @@ def update_TimeEntry(TimeEntry, semester, path):
                 if time > 0:
                     time_hours = (time * 50) // 60
                     time_minutes = (time * 50) % 60
-                    start = datetime.strptime(column, "%d-%m-%Y")-timedelta(days = 1)
+                    start = datetime.strptime(column + 'T00:00:00-0300', "%d-%m-%YT%H:%M:%S%z")-timedelta(days = 1)
                     end = start+timedelta(hours=time_hours, minutes=time_minutes)
 
-                    TimeEntry = TimeEntry.append({'member_acronym': member_acronym,
+                    time_entry = time_entry.append({'member_acronym': member_acronym,
                                                 'project_name': project_name,
                                                 'activity_name': activity_name,
                                                 'client_name': client_name,
                                                 'start': start, 'end': end}, ignore_index=True)
     
-    return TimeEntry
+    return time_entry
 
 def get_member_id(acronym):
     try:
@@ -127,81 +127,95 @@ def get_client_id(name):
 
     return client_id
 
-def update_TimeEntry_ids(TimeEntry, member_ids, project_ids, activity_ids, client_ids):
-    '''Receives the TimeEntry without the ids 
+def update_time_entry_ids(time_entry, member_ids, project_ids, activity_ids, client_ids):
+    '''Receives the time_entry without the ids 
         and return with tue correct ids,
         based on the dictionarys member_ids,
         project_ids, activity_ids and client_ids'''
 
-    for key, row in TimeEntry.iterrows():
+    for index, row in time_entry.iterrows():
         for member_acronym, member_id  in member_ids.items():
             if member_acronym == row[0]:
-                TimeEntry.loc[key, 'member_id'] = member_id
+                time_entry.loc[index, 'member_id'] = member_id
                 break
 
         for project_name, project_id  in project_ids.items():
             if project_name == row[2]:
-                TimeEntry.loc[key, 'project_id'] = project_id
+                time_entry.loc[index, 'project_id'] = project_id
                 break
 
         for activity_name, activity_id  in activity_ids.items():
             if activity_name == row[4]:
-                TimeEntry.loc[key, 'activity_id'] = activity_id
+                time_entry.loc[index, 'activity_id'] = activity_id
                 break
 
         for client_name, client_id  in client_ids.items():
             if client_name == row[6]:
-                TimeEntry.loc[key, 'client_id'] = client_id
+                time_entry.loc[index, 'client_id'] = client_id
                 break
 
-    return TimeEntry
+    return time_entry
 
+def send_to_neodata(time_entry):
+    time_entry = time_entry.reset_index()
+    for index in range(len(time_entry)):
+        print(time_entry.loc[index])
+        TimeEntry.update_or_create({
+         "member_id": time_entry.loc[index, 'member_id'],
+         "project_id": time_entry.loc[index, 'project_id'],
+         "activity_id": time_entry.loc[index, 'activity_id'],
+         "client_id": time_entry.loc[index, 'client_id'],
+         "start": time_entry.loc[index, 'start'],
+         "end": time_entry.loc[index, 'end']
+         })
 
 '''-----------------------Main Function---------------------------------'''
 def import_timesheets():
-    '''Function that creat a timesheet migration of a path
+    '''Function that creat a timesheet migration to neodata of a path.
     '''
-    header_TimeEntry = {'member_acronym': '', 'member_id': '', 'project_name': '',
+    header_time_entry = {'member_acronym': '', 'member_id': '', 'project_name': '',
                      'project_id': '', 'activity_name': '','activity_id': '',
                      'client_name': '', 'client_id': '', 'start': '', 'end': ''}
 
-    EmptyTimeEntry = pd.DataFrame(columns=header_TimeEntry)
+    empty_time_entry = pd.DataFrame(columns=header_time_entry)
     
-    timesheets_directory = r'D:\Desktop\UFSC\NEO\MPG_Desafio\timesheets'
+    timesheets_directory = r'D:\Desktop\UFSC\NEO\MPG_Desafio\timesheets' #Path in the computer that has all the Timesheets
     os.chdir(timesheets_directory)
     for timesheet in glob.glob('*xlsx'):
         semester = timesheet.split('_')[3].split('.')[0][:5]
         path = timesheets_directory + '\\' + timesheet
-        TimeEntry = update_TimeEntry(EmptyTimeEntry, semester, path)
+        time_entry = update_time_entry(empty_time_entry, semester, path)
     
         member_ids = {}
-        members_acronym = TimeEntry.member_acronym.unique()
+        members_acronym = time_entry.member_acronym.unique()
         for acronym in members_acronym:
             member_ids[acronym] = get_member_id(acronym)
 
         project_ids = {}
-        project_names = TimeEntry.project_name.unique()
+        project_names = time_entry.project_name.unique()
         for name in project_names:
             project_ids[name] = get_project_id(name)
         
         activity_ids = {}
-        activity_names = TimeEntry.activity_name.unique()
+        activity_names = time_entry.activity_name.unique()
         for name in activity_names:
             activity_ids[name] = get_activity_id(name)
         
         client_ids = {}
-        client_names = TimeEntry.client_name.unique()
+        client_names = time_entry.client_name.unique()
         for name in client_names:
             client_ids[name] = get_client_id(name)
         
-        TimeEntry = update_TimeEntry_ids(TimeEntry, member_ids,
+        time_entry = update_time_entry_ids(time_entry, member_ids,
                                         project_ids, activity_ids, client_ids)
     
+        #Save time_entry in csv file in the same directory that is the timesheets
+        #time_entry.to_csv(timesheets_directory + '\\' + 'time_entry' + semester + '.csv')
         
-        TimeEntry.to_csv(timesheets_directory + '\\' + 'TimeEntry' + semester + '.csv')
-        
+        send_to_neodata(time_entry)
         print("Done " + timesheet)
-        TimeEntry = EmptyTimeEntry
+        time_entry = empty_time_entry
+
 if __name__ == '__main__':
     import_timesheets()
     
