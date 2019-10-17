@@ -60,3 +60,10 @@ def update_time_entries(event, context):
 
 def email_on_success(event, context):
     return EmailSender(["lab@certi.org.br", "jnr@certi.org.br"]).send()
+
+if __name__ == "__main__":
+    Member.save_from_clockify()
+    Project.save_from_clockify()
+    Activity.save_from_clockify()
+    Client.save_from_clockify()
+    TimeEntry.save_from_clockify()
