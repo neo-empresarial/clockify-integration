@@ -4,19 +4,19 @@ Hey NEOson, welcome to the Clockify Integration repository! The main purpose of 
 
 # How does it work?
 
-We use [AWS Lambda](https://aws.amazon.com/lambda/) to run a python script every day that uses [Clockify API](https://clockify.me/developers-api) to fetch all projects, members, activities, clients and time entries. We process all this data and save on the right format in a database. After that, we use [Metabase](https://www.metabase.com/) to analyze the data saved in the database. By doing all of that we have live data and metrics for every NEOson to use without much technical knowledge needed.
+We use [AWS Lambda](https://aws.amazon.com/lambda/) to run a python script every day that uses [Clockify API](https://clockify.me/developers-api) to fetch all projects, members, activities, clients and time entries. We process all this data and save on the right format in a database. After that, we use [Metabase](https://www.metabase.com/) to analyze the data saved in the database. By doing all of that we have live data and metrics about every NEOson that is readily available to anyone at NEO.
 
 # Installation
 
 ## PostgreSQL
 
-If you'r using **Ubuntu** you can install [PostgreSQL](https://www.postgresql.org/) with:
+If you are using **Ubuntu**, you can install [PostgreSQL](https://www.postgresql.org/) by running:
 
 ```bash
 $ sudo apt-get install postgresql-11
 ```
 
-Or on **MacOs** with:
+Or on **macOS** (assuming you have homebrew installed):
 
 ```bash
 $ brew install postgresql
@@ -24,7 +24,7 @@ $ brew install postgresql
 
 ---
 
-After installing postgres we can create the default user and database we use for the development database.
+After installing postgres we can create a database and default database user you'll use in your development environment.
 
 ```bash
 sudo -u postgres -i
@@ -46,7 +46,7 @@ Then create a database with:
 $ createdb -O neo "neo-data"
 ```
 
-Now lets give neo user privileges to this database and exit postgres shell with:
+Now we must give user 'neo' the privileges needed to access the database we just created. You can do this by running:
 
 ```
 $ psql
