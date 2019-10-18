@@ -22,7 +22,15 @@ Or on **macOS** (assuming you have homebrew installed):
 $ brew install postgresql
 ```
 
----
+## Python requirements
+
+We recommend to use pyenv to install python 3.7.4 locally and then use pipenv to install the requirements with:
+
+```
+$ pipenv install && pipenv shell
+```
+
+## Migrate database
 
 After installing postgres we can create a database and default database user you'll use in your development environment.
 
@@ -57,58 +65,14 @@ $ exit
 
 --- 
 
-With the development database created we can migrate the tables. To do so we need to create a file called `orator.py` with the following lines:
-
-```python
-DATABASES = {
-    'development': {
-        'driver': 'postgres',
-        'host': 'localhost',
-        'database': 'neo-data',
-        'user': 'neo',
-        'password': 'neoempresarial',
-        'prefix': ''
-    }
-}
-```
-
-Before we can migrate you need to install the python requirements first.
-
-## Python requirements
-
-We recommend to use pyenv to install python 3.7.4 locally and then use pipenv to install the requirements with:
-
-```
-$ pipenv install && pipenv shell
-```
-
-## Migrate database
-
-With the `orator.py` file created and the python requirements installed run te following command:
+With the development database created and python requirements installed we can migrate the tables. We will use the `orator_development.py` file to migrate, run the following command:
 
 ```bash
-$ orator migrate
+$ orator migrate -c orator_development.py
 ```
-
-After running the command delete the `orator.py` file. 
 
 If you want to recreate a fresh database. Just delete all the tables from the database and repeat the steps above. 
 
 ## .env file
 
-Create .env file inside config folder with the following keys:
-
-```
-DB_HOSTNAME=
-DB_NAME=
-DB_USERNAME=
-DB_PASSWORD=
-DB_PORT=5432
-DB_URI=
-ENVIRONMENT=production
-CLOCKIFY_API_KEY=
-CLOCKIFY_WORKSPACE_ID=
-SENDGRID_API_KEY=
-AWS_DEFAULT_REGION=
-SNS_TOPIC_NAME=
-```
+Using the `.template.env` inside the 'config' folder fill the missing keys and save it as a **new** copy inside the config folder with the name `.env`
