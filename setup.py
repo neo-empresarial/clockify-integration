@@ -1,5 +1,4 @@
 import boto3
-import os
 
 
 def create_sns_topic():
