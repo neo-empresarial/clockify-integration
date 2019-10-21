@@ -1,3 +1,5 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ce3cbba902194a358f2189247f0df90d)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ribeirojose/clockify-integration&amp;utm_campaign=Badge_Grade)
+
 # Clockify Integration
 
 Hey NEOson, welcome to the Clockify Integration repository! The main purpose of this program is to get the data from Clockify so we can replace the Excel timesheet for something better. 
