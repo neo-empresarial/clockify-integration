@@ -25,7 +25,7 @@ def clean_timesheet(df, year):
     return df
 
 
-def check_row(project_name, activity_name, client_name):
+def row_valid(project_name, activity_name, client_name):
     '''Check if is a valid row based in project, activity and client.'''
 
     if project_name in ('Feriado', 'Falta justificada'):
@@ -86,7 +86,7 @@ def create_time_entries(time_entries, semester, path):
         activity_name = row[2]
         client_name = row[3]
 
-        if not check_row(project_name, activity_name, client_name):
+        if not row_valid(project_name, activity_name, client_name):
             time_entries.drop(key, inplace=True)
 
         else:
@@ -190,7 +190,7 @@ def update_time_entries_ids(time_entries, member_ids, project_ids, activity_ids,
 
     return time_entries
 
-def send_to_neodata(time_entries):
+def send_to_database(time_entries):
     time_entries = time_entries.reset_index()
 
     for index in range(len(time_entries)):
@@ -205,7 +205,7 @@ def send_to_neodata(time_entries):
 
 def import_timesheets():
     '''Function that creat a timesheet migration to neodata of a path.
-        Returns null value'''
+        Returns nothing'''
     header_time_entries = {'member_acronym': '', 'member_id': '', 'project_name': '',
                           'project_id': '', 'activity_name': '', 'activity_id': '',
                           'client_name': '', 'client_id': '', 'start': '', 'end': ''}
@@ -244,10 +244,10 @@ def import_timesheets():
         time_entries = update_time_entries_ids(time_entries, member_ids,
                                              project_ids, activity_ids, client_ids)
 
-        #Save time_entries in csv file in the same directory that is the timesheets
-        time_entries.to_csv(timesheets_directory + '\\' + 'time_entries' + semester + '.csv')
+        #Save time_entries in csv file on the same directory that is the timesheets
+        time_entries.to_csv(timesheets_directory + '\\' + 'time_entries' + year_semester + '.csv')
 
-        send_to_neodata(time_entries)
+        send_to_database(time_entries)
         print("Done " + timesheet)
         time_entries = empty_time_entries
 
