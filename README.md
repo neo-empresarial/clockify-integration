@@ -75,4 +75,4 @@ If you want to recreate a fresh database. Just delete all the tables from the da
 
 ## .env file
 
-Using the `.template.env` inside the 'config' folder fill the missing keys and save it as a **new** copy inside the config folder with the name `.env`
+Using the `.template.env` fill the missing keys and save it as a **new** copy with the name `.env` at the root directory of the project. Pipenv will use this file to load the environment variables
