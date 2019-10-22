@@ -61,10 +61,7 @@ def check_time(time):
         except:
             time = 0
 
-    if time > 0:
-        return True
-
-    return False
+    return time > 0
 
 def read_timesheet(year_semester, path):
     '''Read the timesheet of year and semester in a Path
@@ -245,7 +242,7 @@ def import_timesheets():
         time_entries = update_time_entries_ids(time_entries, member_ids,
                                              project_ids, activity_ids, client_ids)
 
-        #Save time_entries in csv file on the same directory that is the timesheets
+        #Save time_entries in csv file at the same directory that has the timesheets
         time_entries.to_csv(timesheets_directory + '\\' + 'time_entries' + year_semester + '.csv')
 
         send_to_database(time_entries)
