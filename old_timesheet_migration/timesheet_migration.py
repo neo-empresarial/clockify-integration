@@ -70,15 +70,19 @@ def check_time(time):
 
     return False
 
-
-def create_time_entries(time_entries, semester, path):
-    '''Returns a dataframe with all time entries in path file.
-    '''
+def read_timesheet(year_semester, path):
+    '''Read the timesheet of year and semester in a Path
+        Returns a dataframe.'''
 
     xlsx = pd.ExcelFile(path)
-    timesheet = pd.read_excel(xlsx, 'Timesheet ' + semester[:4] + '.' + semester[4])
-    timesheet = clean_timesheet(timesheet, semester[:4])
+    timesheet = pd.read_excel(xlsx, 'Timesheet ' + year_semester[:4] + '.' + year_semester[4])
+    timesheet = clean_timesheet(timesheet, year_semester[:4])
     timesheet_collumns = list(timesheet.iloc[:, 4:])
+    
+    return timesheet
+
+def create_time_entries(time_entries, timesheet):
+    '''Returns a dataframe with all time entries in path file.'''
 
     for key, row in timesheet.iterrows():
         member_acronym = row[0].lower()
@@ -217,9 +221,10 @@ def import_timesheets():
 
     os.chdir(timesheets_directory)
     for timesheet in glob.glob('*xlsx'):
-        semester = timesheet.split('_')[3].split('.')[0][:5]
+        year_semester = timesheet.split('_')[3].split('.')[0][:5]
         path = timesheets_directory + '\\' + timesheet
-        time_entries = create_time_entries(empty_time_entries, semester, path)
+        timesheet = read_timesheet(year_semester, path)
+        time_entries = create_time_entries(empty_time_entries, timesheet)
 
         member_ids = {}
         members_acronym = time_entries.member_acronym.unique()
