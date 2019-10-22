@@ -33,13 +33,7 @@ def row_valid(project_name, activity_name, client_name):
     if project_name in ('Feriado', 'Falta justificada'):
         return True
 
-    if project_name == 0:
-        return False
-
-    if activity_name == 0:
-        return False
-
-    if client_name == 0:
+    if 0 in (project_name, activity_name, client_name):
         return False
 
     return True
