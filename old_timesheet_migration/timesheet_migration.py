@@ -7,7 +7,8 @@ from models import Activity, Client, Member, Project, TimeEntry
 
 
 def clean_timesheet(df, year):
-    '''Clean the timesheet of the year.'''
+    '''Clean the timesheet of the year.
+        Returns a clean dataframe that represents the timesheet'''
 
     header = df.iloc[3]
     for i, head in enumerate(header):
@@ -43,7 +44,9 @@ def check_row(project_name, activity_name, client_name):
 
 
 def calculate_start_end(time, column):
-    '''Receive time end returns the start and end in correct format.'''
+    '''Receive time and the day 
+        Returns the start and end in correct format.'''
+    
     time_hours = (time * 50) // 60
     time_minutes = (time * 50) % 60
     start = datetime.strptime(column + 'T00:00:00-0300', "%d-%m-%YT%H:%M:%S%z")
@@ -54,7 +57,7 @@ def calculate_start_end(time, column):
 
 
 def check_time(time):
-    '''Check if the time in timesheet'''
+    '''Check if the time is valid'''
 
     if type(time) is str:
         try:
@@ -69,8 +72,8 @@ def check_time(time):
 
 
 def create_time_entries(time_entries, semester, path):
-    '''Receive the Time Entry to update with the
-    values of the timesheet in path of the year.'''
+    '''Returns a dataframe with all time entries in path file.
+    '''
 
     xlsx = pd.ExcelFile(path)
     timesheet = pd.read_excel(xlsx, 'Timesheet ' + semester[:4] + '.' + semester[4])
@@ -160,9 +163,8 @@ def get_client_id(name):
 
 
 def update_time_entries_ids(time_entries, member_ids, project_ids, activity_ids, client_ids):
-    '''Receives the time_entries without the ids
-        and return with tue correct ids,
-        based on the dictionarys member_ids,
+    '''Receives a dataframe that represents the time_entries without the ids
+        Returns with the correct ids, based on the dictionaries member_ids,
         project_ids, activity_ids and client_ids'''
 
     for index, row in time_entries.iterrows():
@@ -203,7 +205,7 @@ def send_to_neodata(time_entries):
 
 def import_timesheets():
     '''Function that creat a timesheet migration to neodata of a path.
-    '''
+        Returns null value'''
     header_time_entries = {'member_acronym': '', 'member_id': '', 'project_name': '',
                           'project_id': '', 'activity_name': '', 'activity_id': '',
                           'client_name': '', 'client_id': '', 'start': '', 'end': ''}
