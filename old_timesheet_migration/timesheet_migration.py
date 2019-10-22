@@ -1,10 +1,12 @@
 import os
 import glob
 import pandas as pd
+import sys
+sys.path.append('../')
+
 from datetime import datetime, timedelta
 from config import settings
 from models import Activity, Client, Member, Project, TimeEntry
-
 
 def clean_timesheet(df, year):
     '''Clean the timesheet of the year.
