@@ -79,13 +79,13 @@ def read_timesheet(year_semester, path):
     xlsx = pd.ExcelFile(path)
     timesheet = pd.read_excel(xlsx, 'Timesheet ' + year_semester[:4] + '.' + year_semester[4])
     timesheet = clean_timesheet(timesheet, year_semester[:4])
-    timesheet_collumns = list(timesheet.iloc[:, 4:])
     
     return timesheet
 
 def create_time_entries(time_entries, timesheet):
     '''Returns a dataframe with all time entries in path file.'''
 
+    timesheet_collumns = list(timesheet.iloc[:, 4:])
     for key, row in timesheet.iterrows():
         member_acronym = row[0].lower()
         project_name = row[1]
