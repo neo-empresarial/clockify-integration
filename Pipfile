@@ -10,7 +10,6 @@ pylint = "*"
 pdoc3 = "*"
 
 [packages]
-python-dotenv = "*"
 orator = "*"
 psycopg2-binary = "*"
 requests = "*"
