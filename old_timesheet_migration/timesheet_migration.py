@@ -52,8 +52,8 @@ def calculate_start_end(time, column):
     return (start, end)
 
 
-def check_time(time):
-    '''Check if the time is valid'''
+def time_valid(time):
+    '''Check if the time is valid.'''
 
     if type(time) is str:
         try:
@@ -99,7 +99,7 @@ def create_time_entries(time_entries, timesheet):
 
             for column in timesheet_collumns:
                 time = row[column]
-                if check_time(time):
+                if time_valid(time):
                     if type(time) is str:
                         time = float(time.replace('ha', '').replace(',', '.'))
 
@@ -209,7 +209,7 @@ def import_timesheets():
 
     empty_time_entries = pd.DataFrame(columns=header_time_entries)
 
-    #Path in the computer that has all the Timesheets
+    # Path in the computer that has all the Timesheets
     timesheets_directory = r'D:\Desktop\UFSC\NEO\MPG_Desafio\timesheets'
 
     os.chdir(timesheets_directory)
@@ -242,7 +242,7 @@ def import_timesheets():
         time_entries = update_time_entries_ids(time_entries, member_ids,
                                              project_ids, activity_ids, client_ids)
 
-        #Save time_entries in csv file at the same directory that has the timesheets
+        # Save time_entries in csv file at the same directory that has the timesheets
         time_entries.to_csv(timesheets_directory + '\\' + 'time_entries' + year_semester + '.csv')
 
         send_to_database(time_entries)
