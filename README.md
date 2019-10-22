@@ -1,14 +1,16 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ce3cbba902194a358f2189247f0df90d)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ribeirojose/clockify-integration&amp;utm_campaign=Badge_Grade)
+
 # Clockify Integration
 
 Hey NEOson, welcome to the Clockify Integration repository! The main purpose of this program is to get the data from Clockify so we can replace the Excel timesheet for something better. 
 
-# How does it work?
+## How it works
 
 We use [AWS Lambda](https://aws.amazon.com/lambda/) to run a python script every day that uses [Clockify API](https://clockify.me/developers-api) to fetch all projects, members, activities, clients and time entries. We process all this data and save on the right format in a database. After that, we use [Metabase](https://www.metabase.com/) to analyze the data saved in the database. By doing all of that we have live data and metrics about every NEOson that is readily available to anyone at NEO.
 
-# Installation
+## Installation
 
-## PostgreSQL
+### PostgreSQL
 
 If you are using **Ubuntu**, you can install [PostgreSQL](https://www.postgresql.org/) by running:
 
@@ -22,7 +24,7 @@ Or on **macOS** (assuming you have homebrew installed):
 $ brew install postgresql
 ```
 
-## Python requirements
+### Python requirements
 
 We recommend to use pyenv to install python 3.7.4 locally and then use pipenv to install the requirements with:
 
@@ -30,7 +32,7 @@ We recommend to use pyenv to install python 3.7.4 locally and then use pipenv to
 $ pipenv install && pipenv shell
 ```
 
-## Migrate database
+### Migrate database
 
 After installing postgres we can create a database and default database user you'll use in your development environment.
 
@@ -73,6 +75,6 @@ $ orator migrate -c orator_development.py
 
 If you want to recreate a fresh database. Just delete all the tables from the database and repeat the steps above. 
 
-## .env file
+### .env file
 
 Using the `.template.env` fill the missing keys and save it as a **new** copy with the name `.env` at the root directory of the project. Pipenv will use this file to load the environment variables
