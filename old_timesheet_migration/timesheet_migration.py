@@ -2,9 +2,10 @@ import os
 import glob
 import pandas as pd
 import sys
-sys.path.append('../')
-
 from datetime import datetime, timedelta
+from os.path import dirname, join, exists, abspath
+
+sys.path.append('../')
 from config import settings
 from models import Activity, Client, Member, Project, TimeEntry
 
@@ -37,7 +38,6 @@ def row_valid(project_name, activity_name, client_name):
         return False
 
     return True
-
 
 def calculate_start_end(time, column):
     '''Receive time and the day 
@@ -209,13 +209,12 @@ def import_timesheets():
 
     empty_time_entries = pd.DataFrame(columns=header_time_entries)
 
-    # Path in the computer that has all the Timesheets
-    timesheets_directory = r'D:\Desktop\UFSC\NEO\MPG_Desafio\timesheets'
+    timesheets_path = join(dirname(dirname(abspath(__file__))), 'old_timesheet_migration', 'timesheets')
+    os.chdir(timesheets_path)
 
-    os.chdir(timesheets_directory)
     for timesheet in glob.glob('*xlsx'):
         year_semester = timesheet.split('_')[3].split('.')[0][:5]
-        path = timesheets_directory + '\\' + timesheet
+        path = timesheet_path + '\\' + timesheet
         timesheet = read_timesheet(year_semester, path)
         time_entries = create_time_entries(empty_time_entries, timesheet)
 
@@ -243,7 +242,7 @@ def import_timesheets():
                                              project_ids, activity_ids, client_ids)
 
         # Save time_entries in csv file at the same directory that has the timesheets
-        time_entries.to_csv(timesheets_directory + '\\' + 'time_entries' + year_semester + '.csv')
+        time_entries.to_csv(timesheet_path + '\\' + 'time_entries' + year_semester + '.csv')
 
         send_to_database(time_entries)
         print("Done " + timesheet)
