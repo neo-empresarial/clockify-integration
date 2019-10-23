@@ -9,9 +9,9 @@ sys.path.append('../')
 from config import settings
 from models import Activity, Client, Member, Project, TimeEntry
 
+
 def clean_timesheet(df, year):
-    '''Clean the timesheet of the year.
-        Returns a clean dataframe that represents the timesheet'''
+    '''Transform raw timesheet data frame to a data frame with a useful header, columns, and rows'''
 
     header = df.iloc[3]
     for i, head in enumerate(header):
@@ -59,7 +59,6 @@ def calculate_start_end(time, column):
     end = start + timedelta(hours=time_hours, minutes=time_minutes)
 
     return (start, end)
-
 
 def get_time(time):
     '''Returns a float that represents the time.'''
@@ -208,6 +207,7 @@ def import_timesheets():
         send_to_database(time_entries_with_ids)
         print("Done " + timesheet)
         time_entries = empty_time_entries
+
 
 if __name__ == '__main__':
     import_timesheets()
