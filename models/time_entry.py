@@ -79,6 +79,10 @@ class TimeEntry(Model):
         )
         tag_is_empty = cls.tag_is_empty(time_entry)
         is_company_project = cls.is_company_project(project_name)
+        
+        update_url = "{}/workspaces/{}/time-entries/{}".format(
+                    V1_API_URL, WORKSPACE_ID, time_entry["clockify_id"])
+
         if tag_is_empty and is_company_project:
             # Send report to user; Change on clockify
             print("Missing tag for company project")
