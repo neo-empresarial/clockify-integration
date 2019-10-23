@@ -56,14 +56,19 @@ Then create a database with:
 $ createdb -O neo "neo-data"
 ```
 
-Now we must give user 'neo' the privileges needed to access the database we just created. You can do this by running:
+Now we must give user 'neo' the privileges needed to access the database we just created.
+You can do this by opening the PostgreSQL CLI in your preferred command line shell. This can be done through running:
 
-```
+```bash
 $ psql
-# GRANT ALL PRIVILEGES ON DATABASE "neo-data" TO neo;
-# \q
-$ exit
 ```
+
+and you'll be inside the Postgres interface. Now we want to grant access to the recently created database. You can do so by running:
+
+```bash
+GRANT ALL PRIVILEGES ON DATABASE "neo-data" TO neo;
+```
+inside your session. After this, if you want quit the Postgres client, simply type `\q`
 
 --- 
 
