@@ -186,6 +186,7 @@ def send_to_database(time_entries):
 def import_timesheets():
     '''Function that creat a timesheet migration to neodata of a path.
         Returns nothing'''
+
     header_time_entries = {'member_acronym': '', 'member_id': '', 'project_name': '',
                           'project_id': '', 'activity_name': '', 'activity_id': '',
                           'client_name': '', 'client_id': '', 'start': '', 'end': ''}
@@ -201,11 +202,11 @@ def import_timesheets():
         clean_timesheet = read_timesheet(year_semester, path)
         time_entries = create_time_entries(empty_time_entries, clean_timesheet)
 
-        time_entries = fill_ids(time_entries)
+        time_entries_with_ids = fill_ids(time_entries)
         # Save time_entries in csv file at the same directory that has the timesheets
-        time_entries.to_csv(timesheets_path + '\\' + 'time_entries' + year_semester + '.csv')
+        time_entries_with_ids.to_csv(timesheets_path + '\\' + 'time_entries' + year_semester + '.csv')
 
-        send_to_database(time_entries)
+        send_to_database(time_entries_with_ids)
         print("Done " + timesheet)
         time_entries = empty_time_entries
 
