@@ -61,8 +61,8 @@ def calculate_start_end(time, column):
     return (start, end)
 
 
-def time_valid(time):
-    '''Check if the time is valid.'''
+def get_time(time):
+    '''Returns a float that represents the time.'''
 
     if type(time) is str:
         try:
@@ -70,7 +70,7 @@ def time_valid(time):
         except:
             time = 0
 
-    return time > 0
+    return time
 
 def create_time_entries(time_entries, clean_timesheet):
     '''Returns a dataframe with all time entries in path file.'''
@@ -97,10 +97,8 @@ def create_time_entries(time_entries, clean_timesheet):
                 client_name = client_name.lower()
 
             for column in timesheet_collumns:
-                time = row[column]
-                if time_valid(time):
-                    if type(time) is str:
-                        time = float(time.replace('ha', '').replace(',', '.'))
+                time = get_time(row[column])
+                if time > 0:
 
                     start, end = calculate_start_end(time, column)
                     time_entries = time_entries.append({'member_acronym': member_acronym,
@@ -203,6 +201,7 @@ def import_timesheets():
         time_entries = create_time_entries(empty_time_entries, clean_timesheet)
 
         time_entries_with_ids = fill_ids(time_entries)
+        
         # Save time_entries in csv file at the same directory that has the timesheets
         time_entries_with_ids.to_csv(timesheets_path + '\\' + 'time_entries' + year_semester + '.csv')
 
