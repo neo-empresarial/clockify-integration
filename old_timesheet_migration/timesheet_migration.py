@@ -27,6 +27,15 @@ def clean_timesheet(df, year):
     df.update(df.fillna(0))
     return df
 
+def read_timesheet(year_semester, path):
+    '''Read the timesheet of year and semester in a Path
+        Returns a dataframe.'''
+
+    timesheet_file = pd.ExcelFile(path)
+    raw_timesheet = pd.read_excel(timesheet_file, 'Timesheet ' + year_semester[:4] + '.' + year_semester[4])
+    timesheet = clean_timesheet(raw_timesheet, year_semester[:4])
+    
+    return timesheet
 
 def row_valid(project_name, activity_name, client_name):
     '''Check if is a valid row based in project, activity and client.'''
@@ -62,16 +71,6 @@ def time_valid(time):
             time = 0
 
     return time > 0
-
-def read_timesheet(year_semester, path):
-    '''Read the timesheet of year and semester in a Path
-        Returns a dataframe.'''
-
-    timesheet_file = pd.ExcelFile(path)
-    raw_timesheet = pd.read_excel(timesheet_file, 'Timesheet ' + year_semester[:4] + '.' + year_semester[4])
-    timesheet = clean_timesheet(raw_timesheet, year_semester[:4])
-    
-    return timesheet
 
 def create_time_entries(time_entries, clean_timesheet):
     '''Returns a dataframe with all time entries in path file.'''
@@ -112,52 +111,36 @@ def create_time_entries(time_entries, clean_timesheet):
 
     return time_entries
 
-
-def get_member_id(acronym):
-    try:
-        member_id = Member.where("acronym", acronym).first().id
-
-    except:
+def fill_ids(time_entries):
+    '''Receives a data frame with all time entries without ids
+        Returns a data frame with ids.'''
+    
+    member_ids = {}
+    members_acronym = time_entries.member_acronym.unique()
+    for acronym in members_acronym:
         email = acronym + "@certi.org.br"
-        Member.update_or_create({"acronym": acronym},
-                                {"email": email})
-        member_id = Member.where("acronym", acronym).first().id
+        member_ids[acronym] = Member.update_or_create({"acronym": acronym},
+                                                      {"email": email}).id
 
-    return member_id
+    project_ids = {}
+    project_names = time_entries.project_name.unique()
+    for name in project_names:
+        project_ids[name] = Project.update_or_create({"name": name}).id
 
+    activity_ids = {}
+    activity_names = time_entries.activity_name.unique()
+    for name in activity_names:
+        activity_ids[name] = Activity.update_or_create({"name": name}).id
 
-def get_project_id(name):
-    try:
-        project_id = Project.where("name", name).first().id
+    client_ids = {}
+    client_names = time_entries.client_name.unique()
+    for name in client_names:
+        client_ids[name] = Client.update_or_create({"name": name}).id
 
-    except:
-        Project.update_or_create({"name": name})
-        project_id = Project.where("name", name).first().id
+    time_entries_with_ids = update_time_entries_ids(time_entries, member_ids,
+                                                    project_ids, activity_ids, client_ids)
 
-    return project_id
-
-
-def get_activity_id(name):
-    try:
-        activity_id = Activity.where("name", name).first().id
-
-    except:
-        Activity.update_or_create({"name": name})
-        activity_id = Activity.where("name", name).first().id
-
-    return activity_id
-
-
-def get_client_id(name):
-    try:
-        client_id = Client.where("name", name).first().id
-
-    except:
-        Client.update_or_create({"name": name})
-        client_id = Client.where("name", name).first().id
-
-    return client_id
-
+    return time_entries_with_ids
 
 def update_time_entries_ids(time_entries, member_ids, project_ids, activity_ids, client_ids):
     '''Receives a dataframe that represents the time_entries without the ids
@@ -218,29 +201,7 @@ def import_timesheets():
         clean_timesheet = read_timesheet(year_semester, path)
         time_entries = create_time_entries(empty_time_entries, clean_timesheet)
 
-        member_ids = {}
-        members_acronym = time_entries.member_acronym.unique()
-        for acronym in members_acronym:
-            member_ids[acronym] = get_member_id(acronym)
-
-        project_ids = {}
-        project_names = time_entries.project_name.unique()
-        for name in project_names:
-            project_ids[name] = get_project_id(name)
-
-        activity_ids = {}
-        activity_names = time_entries.activity_name.unique()
-        for name in activity_names:
-            activity_ids[name] = get_activity_id(name)
-
-        client_ids = {}
-        client_names = time_entries.client_name.unique()
-        for name in client_names:
-            client_ids[name] = get_client_id(name)
-
-        time_entries = update_time_entries_ids(time_entries, member_ids,
-                                             project_ids, activity_ids, client_ids)
-
+        time_entries = fill_ids(time_entries)
         # Save time_entries in csv file at the same directory that has the timesheets
         time_entries.to_csv(timesheets_path + '\\' + 'time_entries' + year_semester + '.csv')
 
