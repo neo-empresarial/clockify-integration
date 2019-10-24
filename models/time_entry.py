@@ -117,6 +117,7 @@ class TimeEntry(Model):
     @classmethod
     def save_from_clockify(cls, start="2019-08-05T00:00:01Z"):
         for member in Member.all():
+<<<<<<< HEAD
             url = "{}/workspaces/{}/user/{}/time-entries?hydrated=true&page-size=1000&start={}".format(
                 V1_API_URL, WORKSPACE_ID, member.clockify_id, start
             )
@@ -165,3 +166,42 @@ class TimeEntry(Model):
                 else:
                     print("No end time")
                     print(time_entry)
+=======
+            if member.clockify_id is not None:
+                url_get = "{}/workspaces/{}/user/{}/time-entries?hydrated=true&page-size=1000&start={}".format(
+                    V1_API_URL, WORKSPACE_ID, member.clockify_id, start
+                )
+                time_entries = requests.get(url_get, headers=HEADERS)
+                for time_entry in time_entries.json():
+                    if time_entry["timeInterval"]["end"] is not None:
+                        clockify_id = time_entry["id"]
+                        member_id = Member.where("clockify_id", time_entry["userId"]).first().id
+                        project_id = Project.where("clockify_id", time_entry["projectId"]).first().id
+                        try:
+                            activity_id = Activity.where("name", time_entry["task"]["name"]).first().id
+                        except TypeError:
+                            print("No task")
+                            print(time_entry)
+                            # Send report to member
+                            continue
+                        try:
+                            client_id = cls.correct_empty_or_wrong_tag(time_entry)
+                        except ReferenceError:
+                            print(time_entry)
+                            print("New Company, code needs to be updated")
+                            continue
+                        start = time_entry["timeInterval"]["start"]
+                        end = time_entry["timeInterval"]["end"]
+                        description = time_entry["description"]
+                        TimeEntry.update_or_create({"clockify_id": clockify_id},
+                                                {"member_id": member_id,
+                                                    "project_id": project_id,
+                                                    "activity_id": activity_id,
+                                                    "client_id": client_id,
+                                                    "start": start,
+                                                    "end": end,
+                                                    "description": description})
+                    else:
+                        print("No end time")
+                        print(time_entry)
+>>>>>>> Fix save_from_clockify to iterate just in members that have clockify
