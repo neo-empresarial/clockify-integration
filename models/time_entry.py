@@ -54,7 +54,7 @@ class TimeEntry(Model):
         else:
             print(project_name)
             raise ReferenceError("No client starts with this letter")
-    
+
     @staticmethod
     def find_company_clokify_id(project_name):
         """Returns clockify_id from company based on the project name"""
@@ -107,12 +107,11 @@ class TimeEntry(Model):
                              "end": time_entry['timeInterval']['start']}
         
         if tag_is_empty and is_company_project:
-            company_id = cls.find_company_id(project_name)
-            update_time_entry["tagsID"] = [company_id]
-            #requests.put(url_update, update_time_entry)
+            update_time_entry["tagsID"] = [cls.find_company_clokify_id(project_name)]
+            requests.put(url_update, update_time_entry)
             print("Missing tag for company project")
             print(update_time_entry)
-            return company_id
+            return cls.find_company_id(project_name)
 
         elif not tag_is_empty and is_company_project:
             expected_company_tag_id = cls.find_company_id(project_name)
