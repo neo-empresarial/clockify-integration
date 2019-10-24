@@ -9,7 +9,6 @@ sys.path.append('../')
 from config import settings
 from models import Activity, Client, Member, Project, TimeEntry
 
-
 def clean_timesheet(df, year):
     '''Transform raw timesheet data frame to a data frame with a useful header, columns, and rows'''
 
@@ -37,10 +36,10 @@ def read_timesheet(year_semester, path):
     
     return timesheet
 
-def row_valid(project_name, activity_name, client_name):
+def row_valid(project_name, activity_name, client_name, no_time_projects):
     '''Check if is a valid row based in project, activity and client.'''
-
-    if project_name in ('Feriado', 'Falta justificada'):
+    
+    if project_name in no_time_projects:
         return True
 
     if 0 in (project_name, activity_name, client_name):
@@ -81,13 +80,12 @@ def create_time_entries(time_entries, clean_timesheet):
         activity_name = row[2]
         client_name = row[3]
 
-        if not row_valid(project_name, activity_name, client_name):
+        no_time_projects = ('Feriado', 'Falta_Justificada')
+        if not row_valid(project_name, activity_name, client_name, no_time_projects):
             time_entries.drop(key, inplace=True)
 
         else:
-            project_name = project_name.lower()
-
-            if project_name in ('feriado', 'falta justificada'):
+            if project_name in no_time_projects:
                 activity_name = ''
                 client_name = 'no time'
 
@@ -95,6 +93,7 @@ def create_time_entries(time_entries, clean_timesheet):
                 activity_name = activity_name.lower()
                 client_name = client_name.lower()
 
+            project_name = project_name.lower()
             for column in timesheet_collumns:
                 time = get_time(row[column])
                 if time > 0:
