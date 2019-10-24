@@ -54,6 +54,23 @@ class TimeEntry(Model):
         else:
             print(project_name)
             raise ReferenceError("No client starts with this letter")
+    
+    @staticmethod
+    def find_company_clokify_id(project_name):
+        """Returns clockify_id from company based on the project name"""
+        if project_name[0] == "C":
+            return Client.where("name", "CERTI").first().clockify_id
+        elif project_name[0] == "E":
+            return Client.where("name", "Embraco").first().clockify_id
+        elif project_name[0] == "N":
+            return Client.where("name", "NEO").first().clockify_id
+        elif project_name[0] == "T":
+            return Client.where("name", "Tupy").first().clockify_id
+        elif project_name[0] == "W":
+            return Client.where("name", "WEG").first().clockify_id
+        else:
+            print(project_name)
+            raise ReferenceError("No client starts with this letter")
 
     @staticmethod
     def tag_is_empty(time_entry):
@@ -107,10 +124,12 @@ class TimeEntry(Model):
                 print("Client is different than expected")
                 print(time_entry)
             return expected_company_tag_id
+
         elif not tag_is_empty and not is_company_project:
             # Here we could check alot of stuff
             # like Neócio or if the task of the time entry can have this task.
             return Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
+
         elif tag_is_empty and not is_company_project:
             print(
                 "Missing tag for a project that is not a company project. Assuming tag is NEO"
