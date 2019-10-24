@@ -1,5 +1,3 @@
-
-
 DATABASES = {
     'development': {
         'driver': 'postgres',
