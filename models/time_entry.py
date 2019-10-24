@@ -81,13 +81,22 @@ class TimeEntry(Model):
         is_company_project = cls.is_company_project(project_name)
         
         url_update = "{}/workspaces/{}/time-entries/{}".format(
-                    V1_API_URL, WORKSPACE_ID, time_entry["id"])
-
+                      V1_API_URL, WORKSPACE_ID, time_entry["id"])
+        update_time_entry = {"start": time_entry['timeInterval']['start'],
+                             "billable": time_entry['billable'], 
+                             "description": time_entry['description'],
+                             "projectId": time_entry['projectId'],
+                             "taskId": time_entry['task'],
+                             "end": time_entry['timeInterval']['start']}
+        
         if tag_is_empty and is_company_project:
-            # Send report to user; Change on clockify
+            company_id = cls.find_company_id(project_name)
+            update_time_entry["tagsID"] = [company_id]
+            #requests.put(url_update, update_time_entry)
             print("Missing tag for company project")
-            print(time_entry)
-            return cls.find_company_id(project_name)
+            print(update_time_entry)
+            return company_id
+
         elif not tag_is_empty and is_company_project:
             expected_company_tag_id = cls.find_company_id(project_name)
             company_tag_id = (
