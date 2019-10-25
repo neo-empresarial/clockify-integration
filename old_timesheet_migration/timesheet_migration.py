@@ -23,7 +23,7 @@ def clean_timesheet(df, year):
     df = df.rename(columns=header)
     df = df.drop(['Curso'], axis=1)
     df = df[df['Integrante'].notnull()]
-    df.update(df.fillna(0))
+    df.update(df[4:].fillna(0))
     return df
 
 def read_timesheet(year_semester, path):
@@ -33,30 +33,39 @@ def read_timesheet(year_semester, path):
     timesheet_file = pd.ExcelFile(path)
     raw_timesheet = pd.read_excel(timesheet_file, 'Timesheet ' + year_semester[:4] + '.' + year_semester[4])
     timesheet = clean_timesheet(raw_timesheet, year_semester[:4])
-    
     return timesheet
 
 def row_valid(project_name, activity_name, client_name, no_time_projects):
     '''Check if is a valid row based in project, activity and client.'''
-    
+
     if project_name in no_time_projects:
         return True
-
     if 0 in (project_name, activity_name, client_name):
         return False
-
     return True
+
+def fix_row(project_name, activity_name, client_name, no_time_projects):
+    '''Returns project, activity and client name in a dict.'''
+
+    names = {'project': project_name}
+    if names['project'] in no_time_projects:
+        names['projec'] = project_name.lower()
+        names['client'] = 'no time'
+        names['activity'] = None
+        return names    
+    names['activity'] = activity_name.lower()
+    names['client'] = client_name.lower()
+    return names
 
 def calculate_start_end(time, column):
     '''Receive time and the day 
         Returns the start and end in correct format.'''
-    
+
     time_hours = (time * 50) // 60
     time_minutes = (time * 50) % 60
     start = datetime.strptime(column + 'T00:00:00-0300', "%d-%m-%YT%H:%M:%S%z")
     start = start - timedelta(days=1)
     end = start + timedelta(hours=time_hours, minutes=time_minutes)
-
     return (start, end)
 
 def get_time(time):
@@ -67,7 +76,6 @@ def get_time(time):
             time = float(time.replace('ha', '').replace(',', '.'))
         except:
             time = 0
-
     return time
 
 def create_time_entries(time_entries, clean_timesheet):
@@ -76,66 +84,56 @@ def create_time_entries(time_entries, clean_timesheet):
     timesheet_collumns = list(clean_timesheet.iloc[:, 4:])
     for key, row in clean_timesheet.iterrows():
         member_acronym = row[0].lower()
-        project_name = row[1]
-        activity_name = row[2]
-        client_name = row[3]
-
-        no_time_projects = ('Feriado', 'Falta_Justificada')
-        if not row_valid(project_name, activity_name, client_name, no_time_projects):
-            time_entries.drop(key, inplace=True)
-
-        else:
-            if project_name in no_time_projects:
-                activity_name = ''
-                client_name = 'no time'
-
-            else:
-                activity_name = activity_name.lower()
-                client_name = client_name.lower()
-
-            project_name = project_name.lower()
+        no_time_projects = ('Feriado', 'Falta justificada')
+        if row_valid(row[1], row[2], row[3], no_time_projects):
+            names = fix_row(row[1], row[2], row[3], no_time_projects)
             for column in timesheet_collumns:
+                project_name = names['project']
+                activity_name = names['activity']
+                client_name = names['client']
                 time = get_time(row[column])
                 if time > 0:
-
                     start, end = calculate_start_end(time, column)
                     time_entries = time_entries.append({'member_acronym': member_acronym,
-                                                      'project_name': project_name,
-                                                      'activity_name': activity_name,
-                                                      'client_name': client_name,
-                                                      'start': start, 'end': end}, ignore_index=True)
-
+                                                        'project_name': project_name,
+                                                        'activity_name': activity_name,
+                                                        'client_name': client_name,
+                                                        'start': start, 'end': end}, ignore_index=True)
     return time_entries
+
+def get_entity_id(entity, where, update=None):
+    return globals().get(entity).update_or_create(where, update).id
 
 def fill_ids(time_entries):
     '''Receives a data frame with all time entries without ids
         Returns a data frame with ids.'''
-    
+
     member_ids = {}
     members_acronym = time_entries.member_acronym.unique()
     for acronym in members_acronym:
-        email = acronym + "@certi.org.br"
-        member_ids[acronym] = Member.update_or_create({"acronym": acronym},
-                                                      {"email": email}).id
+        email = {'email': acronym + "@certi.org.br"}
+        member_ids[acronym] = get_entity_id('Member', {'acronym': acronym}, email)
 
     project_ids = {}
     project_names = time_entries.project_name.unique()
     for name in project_names:
-        project_ids[name] = Project.update_or_create({"name": name}).id
+        project_ids[name] = get_entity_id('Project', {'name': name})
 
     activity_ids = {}
     activity_names = time_entries.activity_name.unique()
     for name in activity_names:
-        activity_ids[name] = Activity.update_or_create({"name": name}).id
-
+        if name == None:
+            activity_ids[name] = None
+        else:
+            activity_ids[name] = get_entity_id('Activity', {'name': name})
+    
     client_ids = {}
     client_names = time_entries.client_name.unique()
     for name in client_names:
-        client_ids[name] = Client.update_or_create({"name": name}).id
+        client_ids[name] = get_entity_id('Client', {'name': name})
 
     time_entries_with_ids = update_time_entries_ids(time_entries, member_ids,
                                                     project_ids, activity_ids, client_ids)
-
     return time_entries_with_ids
 
 def update_time_entries_ids(time_entries, member_ids, project_ids, activity_ids, client_ids):
@@ -148,27 +146,22 @@ def update_time_entries_ids(time_entries, member_ids, project_ids, activity_ids,
             if member_acronym == row[0]:
                 time_entries.loc[index, 'member_id'] = member_id
                 break
-
         for project_name, project_id  in project_ids.items():
             if project_name == row[2]:
                 time_entries.loc[index, 'project_id'] = project_id
                 break
-
         for activity_name, activity_id  in activity_ids.items():
             if activity_name == row[4]:
                 time_entries.loc[index, 'activity_id'] = activity_id
                 break
-
         for client_name, client_id  in client_ids.items():
             if client_name == row[6]:
                 time_entries.loc[index, 'client_id'] = client_id
                 break
-
     return time_entries
 
 def send_to_database(time_entries):
     time_entries = time_entries.reset_index()
-
     for index in range(len(time_entries)):
         TimeEntry.update_or_create({
             "member_id": time_entries.loc[index, 'member_id'],
@@ -186,9 +179,8 @@ def import_timesheets():
     header_time_entries = {'member_acronym': '', 'member_id': '', 'project_name': '',
                           'project_id': '', 'activity_name': '', 'activity_id': '',
                           'client_name': '', 'client_id': '', 'start': '', 'end': ''}
-
     empty_time_entries = pd.DataFrame(columns=header_time_entries)
-
+ 
     timesheets_path = join(dirname(dirname(abspath(__file__))), 'old_timesheet_migration', 'timesheets')
     os.chdir(timesheets_path)
 
@@ -197,16 +189,13 @@ def import_timesheets():
         path = timesheets_path + '\\' + timesheet
         clean_timesheet = read_timesheet(year_semester, path)
         time_entries = create_time_entries(empty_time_entries, clean_timesheet)
-
         time_entries_with_ids = fill_ids(time_entries)
-        
+
         # Save time_entries in csv file at the same directory that has the timesheets
         time_entries_with_ids.to_csv(timesheets_path + '\\' + 'time_entries' + year_semester + '.csv')
-
-        send_to_database(time_entries_with_ids)
+        #send_to_database(time_entries_with_ids)
         print("Done " + timesheet)
         time_entries = empty_time_entries
-
 
 if __name__ == '__main__':
     import_timesheets()
