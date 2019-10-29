@@ -163,14 +163,23 @@ def update_time_entries_ids(time_entries, member_ids, project_ids, activity_ids,
 def send_to_database(time_entries):
     time_entries = time_entries.reset_index()
     for index in range(len(time_entries)):
-        #print(time_entries.loc[index, 'activity_id'])
-        TimeEntry.update_or_create({
-            "member_id": time_entries.loc[index, 'member_id'],
-            "project_id": time_entries.loc[index, 'project_id'],
-            "activity_id": time_entries.loc[index, 'activity_id'],
-            "client_id": time_entries.loc[index, 'client_id'],
-            "start": time_entries.loc[index, 'start'],
-            "end": time_entries.loc[index, 'end']})
+        try:
+            TimeEntry.update_or_create({
+                "member_id": time_entries.loc[index, 'member_id'],
+                "project_id": time_entries.loc[index, 'project_id'],
+                "activity_id": time_entries.loc[index, 'activity_id'],
+                "client_id": time_entries.loc[index, 'client_id'],
+                "start": time_entries.loc[index, 'start'],
+                "end": time_entries.loc[index, 'end']})
+
+        #If activity_id equals None
+        except ValueError:
+            TimeEntry.update_or_create({
+                "member_id": time_entries.loc[index, 'member_id'],
+                "project_id": time_entries.loc[index, 'project_id'],
+                "client_id": time_entries.loc[index, 'client_id'],
+                "start": time_entries.loc[index, 'start'],
+                "end": time_entries.loc[index, 'end']})
 
 def import_timesheets():
     '''Function that creat a timesheet migration to neodata of a path.
@@ -193,7 +202,7 @@ def import_timesheets():
 
         # Save time_entries in csv file at the same directory that has the timesheets
         time_entries_with_ids.to_csv(timesheets_path + '\\' + 'time_entries' + year_semester + '.csv')
-        #send_to_database(time_entries_with_ids)
+        send_to_database(time_entries_with_ids)
         print("Done " + timesheet)
         time_entries = empty_time_entries
 
