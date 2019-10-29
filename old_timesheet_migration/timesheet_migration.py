@@ -136,34 +136,23 @@ def fill_ids(time_entries):
                                                     project_ids, activity_ids, client_ids)
     return time_entries_with_ids
 
+
 def update_time_entries_ids(time_entries, member_ids, project_ids, activity_ids, client_ids):
     '''Receives a dataframe that represents the time_entries without the ids
         Returns with the correct ids, based on the dictionaries member_ids,
         project_ids, activity_ids and client_ids'''
 
     for index, row in time_entries.iterrows():
-        for member_acronym, member_id  in member_ids.items():
-            if member_acronym == row[0]:
-                time_entries.loc[index, 'member_id'] = member_id
-                break
-        for project_name, project_id  in project_ids.items():
-            if project_name == row[2]:
-                time_entries.loc[index, 'project_id'] = project_id
-                break
-        for activity_name, activity_id  in activity_ids.items():
-            if activity_name == row[4]:
-                time_entries.loc[index, 'activity_id'] = activity_id
-                break
-        for client_name, client_id  in client_ids.items():
-            if client_name == row[6]:
-                time_entries.loc[index, 'client_id'] = client_id
-                break
+        time_entries.loc[index, 'member_id'] = member_ids[row[0]]
+        time_entries.loc[index, 'project_id'] = project_ids[row[2]]
+        time_entries.loc[index, 'activity_id'] = activity_ids[row[4]]
+        time_entries.loc[index, 'client_id'] = client_ids[row[6]]
     return time_entries
 
 def send_to_database(time_entries):
     time_entries = time_entries.reset_index()
     for index in range(len(time_entries)):
-        try:
+        if time_entries.loc[index, 'activity_id'] != None:
             TimeEntry.update_or_create({
                 "member_id": time_entries.loc[index, 'member_id'],
                 "project_id": time_entries.loc[index, 'project_id'],
@@ -172,8 +161,7 @@ def send_to_database(time_entries):
                 "start": time_entries.loc[index, 'start'],
                 "end": time_entries.loc[index, 'end']})
 
-        #If activity_id equals None
-        except ValueError:
+        else:
             TimeEntry.update_or_create({
                 "member_id": time_entries.loc[index, 'member_id'],
                 "project_id": time_entries.loc[index, 'project_id'],
