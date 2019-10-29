@@ -163,6 +163,7 @@ def update_time_entries_ids(time_entries, member_ids, project_ids, activity_ids,
 def send_to_database(time_entries):
     time_entries = time_entries.reset_index()
     for index in range(len(time_entries)):
+        #print(time_entries.loc[index, 'activity_id'])
         TimeEntry.update_or_create({
             "member_id": time_entries.loc[index, 'member_id'],
             "project_id": time_entries.loc[index, 'project_id'],
@@ -170,7 +171,6 @@ def send_to_database(time_entries):
             "client_id": time_entries.loc[index, 'client_id'],
             "start": time_entries.loc[index, 'start'],
             "end": time_entries.loc[index, 'end']})
-
 
 def import_timesheets():
     '''Function that creat a timesheet migration to neodata of a path.
@@ -180,7 +180,7 @@ def import_timesheets():
                           'project_id': '', 'activity_name': '', 'activity_id': '',
                           'client_name': '', 'client_id': '', 'start': '', 'end': ''}
     empty_time_entries = pd.DataFrame(columns=header_time_entries)
- 
+
     timesheets_path = join(dirname(dirname(abspath(__file__))), 'old_timesheet_migration', 'timesheets')
     os.chdir(timesheets_path)
 
