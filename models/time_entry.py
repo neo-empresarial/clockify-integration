@@ -108,20 +108,27 @@ class TimeEntry(Model):
         
         if tag_is_empty and is_company_project:
             update_time_entry["tagsID"] = [cls.find_company_clokify_id(project_name)]
-            requests.put(url_update, update_time_entry)
-            print("Missing tag for company project")
-            print(update_time_entry)
+            if update_time_entry["description"] == 'teste2':
+                print(project_name)
+                requests.put(url_update, update_time_entry)
+                print("Missing tag for company project")
+                print(update_time_entry)
             return cls.find_company_id(project_name)
 
         elif not tag_is_empty and is_company_project:
             expected_company_tag_id = cls.find_company_id(project_name)
+<<<<<<< HEAD
             company_tag_id = (
                 Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
             )
             if company_tag_id != expected_company_tag_id:
+=======
+            company_tag_id = Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
+            #if company_tag_id != expected_company_tag_id:
+>>>>>>> Test if is working
                 # Send report to user; Change on clockify
-                print("Client is different than expected")
-                print(time_entry)
+                #print("Client is different than expected")
+                #print(time_entry)
             return expected_company_tag_id
 
         elif not tag_is_empty and not is_company_project:
@@ -130,10 +137,15 @@ class TimeEntry(Model):
             return Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
 
         elif tag_is_empty and not is_company_project:
+<<<<<<< HEAD
             print(
                 "Missing tag for a project that is not a company project. Assuming tag is NEO"
             )
             print(time_entry)
+=======
+            #("Missing tag for a project that is not a company project. Assuming tag is NEO")
+            #print(time_entry)
+>>>>>>> Test if is working
             # Send report to user; Change on clockify
             return Client.where("name", "neo").first().id
 
@@ -207,15 +219,15 @@ class TimeEntry(Model):
                         try:
                             activity_id = Activity.where("name", time_entry["task"]["name"]).first().id
                         except TypeError:
-                            print("No task")
-                            print(time_entry)
+                            #print("No task")
+                            #print(time_entry)
                             # Send report to member
                             continue
                         try:
                             client_id = cls.correct_empty_or_wrong_tag(time_entry)
                         except ReferenceError:
-                            print(time_entry)
-                            print("New Company, code needs to be updated")
+                            #print(time_entry)
+                            #print("New Company, code needs to be updated")
                             continue
                         start = time_entry["timeInterval"]["start"]
                         end = time_entry["timeInterval"]["end"]
@@ -228,7 +240,13 @@ class TimeEntry(Model):
                                                     "start": start,
                                                     "end": end,
                                                     "description": description})
+<<<<<<< HEAD
                     else:
                         print("No end time")
                         print(time_entry)
 >>>>>>> Fix save_from_clockify to iterate just in members that have clockify
+=======
+                    #else:
+                        #print("No end time")
+                        #print(time_entry)
+>>>>>>> Test if is working
