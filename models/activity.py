@@ -7,8 +7,9 @@ import requests
 class Activity(Model):
 
     __table__ = "activity"
-    __fillable__ = ["name"]
+    __fillable__ = ["clockify_id", "name"]
     __primary_key__ = "id"
+    __incrementing__ = True
 
     @classmethod
     def save_from_clockify(cls):

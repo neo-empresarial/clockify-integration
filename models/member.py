@@ -7,8 +7,9 @@ class Member(Model):
 
     __table__ = "member"
     __fillable__ = ["clockify_id", "acronym", "email"]
-    __primary_key__ = "clockify_id"
-
+    __primary_key__ = "id"
+    __incrementing__ = True
+    
     @classmethod
     def save_from_clockify(cls):
         """Check if all users in clockify are register as members in the database.
