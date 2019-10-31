@@ -49,9 +49,9 @@ def fix_row(project_name, activity_name, client_name, no_time_projects):
 
     names = {'project': project_name}
     if names['project'] in no_time_projects:
-        names['projec'] = project_name.lower()
+        names['projec'] = 'atividades gerais'
         names['client'] = 'no time'
-        names['activity'] = None
+        names['activity'] = names['project'].lower()
         return names    
     names['activity'] = activity_name.lower()
     names['client'] = client_name.lower()
@@ -122,10 +122,7 @@ def fill_ids(time_entries):
     activity_ids = {}
     activity_names = time_entries.activity_name.unique()
     for name in activity_names:
-        if name == None:
-            activity_ids[name] = None
-        else:
-            activity_ids[name] = get_entity_id('Activity', {'name': name})
+        activity_ids[name] = get_entity_id('Activity', {'name': name})
     
     client_ids = {}
     client_names = time_entries.client_name.unique()
@@ -152,22 +149,13 @@ def update_time_entries_ids(time_entries, member_ids, project_ids, activity_ids,
 def send_to_database(time_entries):
     time_entries = time_entries.reset_index()
     for index in range(len(time_entries)):
-        if time_entries.loc[index, 'activity_id'] != None:
-            TimeEntry.update_or_create({
-                "member_id": time_entries.loc[index, 'member_id'],
-                "project_id": time_entries.loc[index, 'project_id'],
-                "activity_id": time_entries.loc[index, 'activity_id'],
-                "client_id": time_entries.loc[index, 'client_id'],
-                "start": time_entries.loc[index, 'start'],
-                "end": time_entries.loc[index, 'end']})
-
-        else:
-            TimeEntry.update_or_create({
-                "member_id": time_entries.loc[index, 'member_id'],
-                "project_id": time_entries.loc[index, 'project_id'],
-                "client_id": time_entries.loc[index, 'client_id'],
-                "start": time_entries.loc[index, 'start'],
-                "end": time_entries.loc[index, 'end']})
+        TimeEntry.update_or_create({
+            "member_id": time_entries.loc[index, 'member_id'],
+            "project_id": time_entries.loc[index, 'project_id'],
+            "activity_id": time_entries.loc[index, 'activity_id'],
+            "client_id": time_entries.loc[index, 'client_id'],
+            "start": time_entries.loc[index, 'start'],
+            "end": time_entries.loc[index, 'end']})
 
 def import_timesheets():
     '''Function that creat a timesheet migration to neodata of a path.
