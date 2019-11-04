@@ -7,7 +7,8 @@ class Project(Model):
 
     __table__ = "project"
     __fillable__ = ["clockify_id", "name"]
-    __primary_key__ = "clockify_id"
+    __primary_key__ = "id"
+    __incrementing__ = True
 
     @classmethod
     def save_from_clockify(cls):
