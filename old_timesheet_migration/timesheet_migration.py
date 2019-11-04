@@ -150,18 +150,23 @@ def update_time_entries_ids(time_entries, member_ids, project_ids, activity_ids,
         time_entries.loc[index, 'client_id'] = client_ids[row[6]]
     return time_entries
 
+def send_row_to_database(row):
+    '''Sends a time entry to database
+       Returns nothing.'''
+
+    TimeEntry.update_or_create({
+            "member_id": row['member_id'],
+            "project_id": row['project_id'],
+            "activity_id": row['activity_id'],
+            "client_id": row['client_id'],
+            "start": row['start'],
+            "end": row['end']})
+
 def send_to_database(time_entries):
-    '''Send time entries to database
+    '''Sends time entries to database
        Return nothing.'''
     time_entries = time_entries.reset_index()
-    for index in range(len(time_entries)):
-        TimeEntry.update_or_create({
-            "member_id": time_entries.loc[index, 'member_id'],
-            "project_id": time_entries.loc[index, 'project_id'],
-            "activity_id": time_entries.loc[index, 'activity_id'],
-            "client_id": time_entries.loc[index, 'client_id'],
-            "start": time_entries.loc[index, 'start'],
-            "end": time_entries.loc[index, 'end']})
+    time_entries.apply(send_row_to_database, axis=1)
 
 def import_timesheets():
     '''Function that creat a timesheet migration to neodata of a path.
