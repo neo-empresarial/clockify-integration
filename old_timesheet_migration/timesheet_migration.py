@@ -116,29 +116,26 @@ def fill_ids(time_entries):
     '''Receives a data frame with all time entries without ids
         Returns a data frame with ids.'''
 
-    member_ids = {}
+    member_ids=project_ids=activity_ids=client_ids={}
     members_acronym = time_entries.member_acronym.unique()
-    for acronym in members_acronym:
-        email = {'email': acronym + "@certi.org.br"}
-        member_ids[acronym] = get_entity_id('Member', {'acronym': acronym}, email)
-
-    project_ids = {}
     project_names = time_entries.project_name.unique()
-    for name in project_names:
-        project_ids[name] = get_entity_id('Project', {'name': name})
-
-    activity_ids = {}
     activity_names = time_entries.activity_name.unique()
-    for name in activity_names:
-        activity_ids[name] = get_entity_id('Activity', {'name': name})
-    
-    client_ids = {}
     client_names = time_entries.client_name.unique()
-    for name in client_names:
-        client_ids[name] = get_entity_id('Client', {'name': name})
+    zip_infos = zip(members_acronym, project_names, activity_names, client_names)
+    for acronym, project_name, activity_name, client_name in zip_infos:
+        if acronym is not None:
+            email = {'email': acronym + "@certi.org.br"}
+            member_ids[acronym] = get_entity_id('Member', {'acronym': acronym}, email)
+        if project_name is not None:
+            project_ids[project_name] = get_entity_id('Project', {'name': project_name})
+        if activity_name is not None:
+            activity_ids[activity_name] = get_entity_id('Activity', {'name': activity_name})
+        if client_name is not None:
+            client_ids[client_name] = get_entity_id('Client', {'name': client_name})
 
     time_entries_with_ids = update_time_entries_ids(time_entries, member_ids,
                                                     project_ids, activity_ids, client_ids)
+
     return time_entries_with_ids
 
 
@@ -155,6 +152,8 @@ def update_time_entries_ids(time_entries, member_ids, project_ids, activity_ids,
     return time_entries
 
 def send_to_database(time_entries):
+    '''Send time entries to database
+       Return nothing.'''
     time_entries = time_entries.reset_index()
     for index in range(len(time_entries)):
         TimeEntry.update_or_create({
