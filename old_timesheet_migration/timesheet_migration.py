@@ -47,12 +47,13 @@ def row_valid(project_name, activity_name, client_name, no_time_projects):
 def fix_row(project_name, activity_name, client_name, no_time_projects):
     '''Returns project, activity and client name in a dict.'''
 
-    names = {'project': project_name}
+    names = {'project': project_name.lower()}
     if names['project'] in no_time_projects:
-        names['projec'] = 'atividades gerais'
+        names['activity'] = names['project']
+        names['project'] = 'atividades gerais'
         names['client'] = 'no time'
-        names['activity'] = names['project'].lower()
-        return names    
+        return names
+    
     names['activity'] = activity_name.lower()
     names['client'] = client_name.lower()
     return names
@@ -84,7 +85,7 @@ def create_time_entries(time_entries, clean_timesheet):
     timesheet_columns = list(clean_timesheet.iloc[:, 4:])
     for key, row in clean_timesheet.iterrows():
         member_acronym = row[0].lower()
-        no_time_projects = ('Feriado', 'Falta justificada')
+        no_time_projects = ('feriado', 'falta justificada')
         if row_valid(row[1], row[2], row[3], no_time_projects):
             names = fix_row(row[1], row[2], row[3], no_time_projects)
             for column in timesheet_columns:
@@ -93,7 +94,7 @@ def create_time_entries(time_entries, clean_timesheet):
                     dict_time_entry = {'member_acronym': member_acronym}
                     dict_time_entry.update(get_dict_time_entry(column, names, time))
                     time_entry = pd.DataFrame([dict_time_entry])
-                    time_entries = time_entries.append(time_entry, ignore_index=True, sort=False))
+                    time_entries = time_entries.append(time_entry, ignore_index=True, sort=False)
     return time_entries        
 
 def get_dict_time_entry(column, names, time):
@@ -110,30 +111,33 @@ def get_dict_time_entry(column, names, time):
 
     return dict_time_entry
 
-
 def get_entity_id(entity, where, update=None):
     return globals().get(entity).update_or_create(where, update).id
 
 def fill_ids(time_entries):
     '''Receives a data frame with all time entries without ids
-        Returns a data frame with ids.'''
+       Returns a data frame with ids.'''
 
-    member_ids=project_ids=activity_ids=client_ids={}
+    member_ids = {}
     members_acronym = time_entries.member_acronym.unique()
+    for acronym in members_acronym:
+        email = {'email': acronym + "@certi.org.br"}
+        member_ids[acronym] = get_entity_id('Member', {'acronym': acronym}, email)
+
+    project_ids = {}
     project_names = time_entries.project_name.unique()
+    for name in project_names:
+        project_ids[name] = get_entity_id('Project', {'name': name})
+
+    activity_ids = {}
     activity_names = time_entries.activity_name.unique()
+    for name in activity_names:
+        activity_ids[name] = get_entity_id('Activity', {'name': name})
+
+    client_ids = {}
     client_names = time_entries.client_name.unique()
-    zip_infos = zip(members_acronym, project_names, activity_names, client_names)
-    for acronym, project_name, activity_name, client_name in zip_infos:
-        if acronym is not None:
-            email = {'email': acronym + "@certi.org.br"}
-            member_ids[acronym] = get_entity_id('Member', {'acronym': acronym}, email)
-        if project_name is not None:
-            project_ids[project_name] = get_entity_id('Project', {'name': project_name})
-        if activity_name is not None:
-            activity_ids[activity_name] = get_entity_id('Activity', {'name': activity_name})
-        if client_name is not None:
-            client_ids[client_name] = get_entity_id('Client', {'name': client_name})
+    for name in client_names:
+        client_ids[name] = get_entity_id('Client', {'name': name})
 
     time_entries_with_ids = update_time_entries_ids(time_entries, member_ids,
                                                     project_ids, activity_ids, client_ids)
@@ -145,7 +149,6 @@ def update_time_entries_ids(time_entries, member_ids, project_ids, activity_ids,
     '''Receives a dataframe that represents the time_entries without the ids
         Returns with the correct ids, based on the dictionaries member_ids,
         project_ids, activity_ids and client_ids'''
-
     for index, row in time_entries.iterrows():
         time_entries.loc[index, 'member_id'] = member_ids[row[0]]
         time_entries.loc[index, 'project_id'] = project_ids[row[2]]
@@ -188,7 +191,6 @@ def import_timesheets():
         path = timesheets_path + '\\' + timesheet
         clean_timesheet = read_timesheet(year_semester, path)
         time_entries = create_time_entries(empty_time_entries, clean_timesheet)
-        print(time_entries)
         time_entries_with_ids = fill_ids(time_entries)
 
         # Save time_entries in csv file at the same directory that has the timesheets
