@@ -81,20 +81,20 @@ def get_time(time):
 def create_time_entries(time_entries, clean_timesheet):
     '''Returns a dataframe with all time entries in path file.'''
 
-    timesheet_collumns = list(clean_timesheet.iloc[:, 4:])
+    timesheet_columns = list(clean_timesheet.iloc[:, 4:])
     for key, row in clean_timesheet.iterrows():
         member_acronym = row[0].lower()
         no_time_projects = ('Feriado', 'Falta justificada')
         if row_valid(row[1], row[2], row[3], no_time_projects):
             names = fix_row(row[1], row[2], row[3], no_time_projects)
-            time_entries = fill_row(timesheet_collumns, names, time_entries)
+            time_entries = fill_row(timesheet_columns, names, time_entries)
     return time_entries        
 
-def fill_row(timesheet_collumns, names, time_entries):
+def fill_row(timesheet_columns, names, time_entries):
     '''Fills all time entries in a timesheet row.
        Returns a dataframe with the timesheet added'''
 
-    for column in timesheet_collumns:
+    for column in timesheet_columns:
                 project_name = names['project']
                 activity_name = names['activity']
                 client_name = names['client']
