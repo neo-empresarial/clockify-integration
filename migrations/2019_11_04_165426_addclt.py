@@ -7,7 +7,7 @@ class Addclt(Migration):
         Run the migrations.
         """
         with self.schema.table("member") as table:
-            table.boolean("clt").default(0)
+            table.boolean("is_clt").default(0)
             pass
 
     def down(self):
@@ -15,5 +15,5 @@ class Addclt(Migration):
         Revert the migrations.
         """
         with self.schema.table("member") as table:
-            table.drop_column("clt")
+            table.drop_column("is_clt")
             pass
