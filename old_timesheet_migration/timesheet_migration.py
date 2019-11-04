@@ -87,7 +87,14 @@ def create_time_entries(time_entries, clean_timesheet):
         no_time_projects = ('Feriado', 'Falta justificada')
         if row_valid(row[1], row[2], row[3], no_time_projects):
             names = fix_row(row[1], row[2], row[3], no_time_projects)
-            for column in timesheet_collumns:
+            time_entries = fill_row(timesheet_collumns, names, time_entries)
+    return time_entries        
+
+def fill_row(timesheet_collumns, names, time_entries):
+    '''Fills all time entries in a timesheet row.
+       Returns a dataframe with the timesheet added'''
+
+    for column in timesheet_collumns:
                 project_name = names['project']
                 activity_name = names['activity']
                 client_name = names['client']
@@ -100,6 +107,7 @@ def create_time_entries(time_entries, clean_timesheet):
                                                         'client_name': client_name,
                                                         'start': start, 'end': end}, ignore_index=True)
     return time_entries
+
 
 def get_entity_id(entity, where, update=None):
     return globals().get(entity).update_or_create(where, update).id
