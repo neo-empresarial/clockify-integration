@@ -90,22 +90,25 @@ def create_time_entries(time_entries, clean_timesheet):
             for column in timesheet_columns:
                 time = get_time(row[column])
                 if time > 0:
-                    time_entry = {'member_acronym': member_acronym}
-                    time_entry.update(fill_time_entry(column, names, time))
-                    time_entries.append(time_entry, ignore_index=True)
+                    dict_time_entry = {'member_acronym': member_acronym}
+                    dict_time_entry.update(get_dict_time_entry(column, names, time))
+                    time_entry = pd.DataFrame([dict_time_entry])
+                    time_entries = time_entries.append(time_entry, ignore_index=True, sort=False))
     return time_entries        
 
-def fill_time_entry(column, names, time):
+def get_dict_time_entry(column, names, time):
     '''Fills all time entries in a timesheet row.
        Returns a dataframe with the timesheet added'''
     project_name = names['project']
     activity_name = names['activity']
     client_name = names['client']
     start, end = calculate_start_end(time, column)
-    return {'project_name': project_name,
-            'activity_name': activity_name,
-            'client_name': client_name,
-            'start': start, 'end': end}
+    dict_time_entry = {'project_name': project_name,
+                  'activity_name': activity_name,
+                  'client_name': client_name,
+                  'start': start, 'end': end}
+
+    return dict_time_entry
 
 
 def get_entity_id(entity, where, update=None):
@@ -185,6 +188,7 @@ def import_timesheets():
         path = timesheets_path + '\\' + timesheet
         clean_timesheet = read_timesheet(year_semester, path)
         time_entries = create_time_entries(empty_time_entries, clean_timesheet)
+        print(time_entries)
         time_entries_with_ids = fill_ids(time_entries)
 
         # Save time_entries in csv file at the same directory that has the timesheets
