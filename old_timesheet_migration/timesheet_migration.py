@@ -75,7 +75,7 @@ def get_time(time):
     if type(time) is str:
         try:
             time = float(time.replace('ha', '').replace(',', '.'))
-        except:
+        except ValueError:
             time = 0
     return time
 
