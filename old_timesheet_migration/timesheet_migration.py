@@ -9,8 +9,10 @@ sys.path.append('../')
 from config import settings
 from models import Activity, Client, Member, Project, TimeEntry
 
+
 def clean_timesheet(df, year):
-    '''Transform raw timesheet data frame to a data frame with a useful header, columns, and rows'''
+    '''Transform raw timesheet data frame to
+       a data frame with a useful header, columns, and rows'''
 
     header = df.iloc[3]
     for i, head in enumerate(header):
@@ -26,6 +28,8 @@ def clean_timesheet(df, year):
     df.update(df[4:].fillna(0))
     return df
 
+
+
 def read_timesheet(year_semester, path):
     '''Read the timesheet of year and semester in a Path
         Returns a dataframe.'''
@@ -34,6 +38,7 @@ def read_timesheet(year_semester, path):
     raw_timesheet = pd.read_excel(timesheet_file, 'Timesheet ' + year_semester[:4] + '.' + year_semester[4])
     timesheet = clean_timesheet(raw_timesheet, year_semester[:4])
     return timesheet
+
 
 def row_valid(project_name, activity_name, client_name, no_time_projects):
     '''Check if is a valid row based in project, activity and client.'''
@@ -44,6 +49,7 @@ def row_valid(project_name, activity_name, client_name, no_time_projects):
         return False
     return True
 
+
 def fix_row(project_name, activity_name, client_name, no_time_projects):
     '''Returns project, activity and client name in a dict.'''
 
@@ -53,14 +59,15 @@ def fix_row(project_name, activity_name, client_name, no_time_projects):
         names['project'] = 'atividades gerais'
         names['client'] = 'no time'
         return names
-    
+
     names['activity'] = activity_name.lower()
     names['client'] = client_name.lower()
     return names
 
+
 def calculate_start_end(time, column):
-    '''Receive time and the day 
-        Returns the start and end in correct format.'''
+    '''Receive time and the day
+       Returns the start and end in correct format.'''
 
     time_hours = (time * 50) // 60
     time_minutes = (time * 50) % 60
@@ -68,6 +75,7 @@ def calculate_start_end(time, column):
     start = start - timedelta(days=1)
     end = start + timedelta(hours=time_hours, minutes=time_minutes)
     return (start, end)
+
 
 def get_time(time):
     '''Returns a float that represents the time.'''
@@ -95,7 +103,8 @@ def create_time_entries(time_entries, clean_timesheet):
                     dict_time_entry.update(get_dict_time_entry(column, names, time))
                     time_entry = pd.DataFrame([dict_time_entry])
                     time_entries = time_entries.append(time_entry, ignore_index=True, sort=False)
-    return time_entries        
+    return time_entries
+
 
 def get_dict_time_entry(column, names, time):
     '''Fills all time entries in a timesheet row.
@@ -105,14 +114,15 @@ def get_dict_time_entry(column, names, time):
     client_name = names['client']
     start, end = calculate_start_end(time, column)
     dict_time_entry = {'project_name': project_name,
-                  'activity_name': activity_name,
-                  'client_name': client_name,
-                  'start': start, 'end': end}
+                       'activity_name': activity_name,
+                       'client_name': client_name,
+                       'start': start, 'end': end}
 
     return dict_time_entry
 
 def get_entity_id(entity, where, update=None):
     return globals().get(entity).update_or_create(where, update).id
+
 
 def fill_ids(time_entries):
     '''Receives a data frame with all time entries without ids
@@ -156,6 +166,7 @@ def update_time_entries_ids(time_entries, member_ids, project_ids, activity_ids,
         time_entries.loc[index, 'client_id'] = client_ids[row[6]]
     return time_entries
 
+
 def send_row_to_database(row):
     '''Sends a time entry to database
        Returns nothing.'''
@@ -168,19 +179,21 @@ def send_row_to_database(row):
             "start": row['start'],
             "end": row['end']})
 
+
 def send_to_database(time_entries):
     '''Sends time entries to database
        Return nothing.'''
     time_entries = time_entries.reset_index()
     time_entries.apply(send_row_to_database, axis=1)
 
+
 def import_timesheets():
     '''Function that creat a timesheet migration to neodata of a path.
-        Returns nothing'''
+       Returns nothing'''
 
     header_time_entries = {'member_acronym': '', 'member_id': '', 'project_name': '',
-                          'project_id': '', 'activity_name': '', 'activity_id': '',
-                          'client_name': '', 'client_id': '', 'start': '', 'end': ''}
+                           'project_id': '', 'activity_name': '', 'activity_id': '',
+                           'client_name': '', 'client_id': '', 'start': '', 'end': ''}
     empty_time_entries = pd.DataFrame(columns=header_time_entries)
 
     timesheets_path = join(dirname(dirname(abspath(__file__))), 'old_timesheet_migration', 'timesheets')
@@ -198,6 +211,7 @@ def import_timesheets():
         send_to_database(time_entries_with_ids)
         print("Done " + timesheet)
         time_entries = empty_time_entries
+
 
 if __name__ == '__main__':
     import_timesheets()
