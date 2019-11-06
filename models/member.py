@@ -32,6 +32,10 @@ class Member(Model):
         url = "{}/workspace/{}/users".format(V1_API_URL, WORKSPACE_ID)
         responses = requests.get(url, headers=HEADERS)
         return [
-            {"acronym": user["name"], "clockify_id": user["id"], "email": user["email"]}
+            {
+                "acronym": user["name"].lower(),
+                "clockify_id": user["id"],
+                "email": user["email"].lower(),
+            }
             for user in responses.json()
         ]
