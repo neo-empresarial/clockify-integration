@@ -25,8 +25,7 @@ class Activity(Model):
         """Find all unique tasks from all project of Clockify on NEO's workspace.
 
         Returns list of dictionaries containing "name" of every task."""
-        projects_ids = [project["clockify_id"]
-                        for project in cls.get_all_projects_id()]
+        projects_ids = [project["clockify_id"] for project in cls.get_all_projects_id()]
         tasks = list(map(cls.fetch_project_tasks, projects_ids))
         unique_tasks = list(set(chain.from_iterable(tasks)))
         return unique_tasks
@@ -41,7 +40,7 @@ class Activity(Model):
             V1_API_URL, WORKSPACE_ID, project_id
         )
         responses = requests.get(url, headers=HEADERS)
-        return [task["name"] for task in responses.json()]
+        return [task["name"].lower() for task in responses.json()]
 
     @staticmethod
     def get_all_projects_id():
@@ -52,6 +51,6 @@ class Activity(Model):
         url = "{}/workspaces/{}/projects".format(V1_API_URL, WORKSPACE_ID)
         responses = requests.get(url, headers=HEADERS)
         return [
-            {"clockify_id": project["id"], "name": project["name"]}
+            {"clockify_id": project["id"], "name": project["name"].lower()}
             for project in responses.json()
         ]

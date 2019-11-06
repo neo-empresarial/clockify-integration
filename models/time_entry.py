@@ -74,7 +74,9 @@ class TimeEntry(Model):
     def correct_empty_or_wrong_tag(cls, time_entry):
         """Check if the tag is empty and if the time entry is for a company project.
            With that it can sometimes correct the tag."""
-        project_name = Project.where("clockify_id", time_entry["projectId"]).first().name
+        project_name = (
+            Project.where("clockify_id", time_entry["projectId"]).first().name
+        )
         tag_is_empty = cls.tag_is_empty(time_entry)
         is_company_project = cls.is_company_project(project_name)
         if tag_is_empty and is_company_project:
@@ -84,7 +86,9 @@ class TimeEntry(Model):
             return cls.find_company_id(project_name)
         elif not tag_is_empty and is_company_project:
             expected_company_tag_id = cls.find_company_id(project_name)
-            company_tag_id = Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
+            company_tag_id = (
+                Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
+            )
             if company_tag_id != expected_company_tag_id:
                 # Send report to user; Change on clockify
                 print("Client is different than expected")
@@ -95,7 +99,9 @@ class TimeEntry(Model):
             # like Neócio or if the task of the time entry can have this task.
             return Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
         elif tag_is_empty and not is_company_project:
-            print("Missing tag for a project that is not a company project. Assuming tag is NEO")
+            print(
+                "Missing tag for a project that is not a company project. Assuming tag is NEO"
+            )
             print(time_entry)
             # Send report to user; Change on clockify
             return Client.where("name", "NEO").first().id
@@ -114,10 +120,18 @@ class TimeEntry(Model):
             for time_entry in time_entries.json():
                 if time_entry["timeInterval"]["end"] is not None:
                     clockify_id = time_entry["id"]
-                    member_id = Member.where("clockify_id", time_entry["userId"]).first().id
-                    project_id = Project.where("clockify_id", time_entry["projectId"]).first().id
+                    member_id = (
+                        Member.where("clockify_id", time_entry["userId"]).first().id
+                    )
+                    project_id = (
+                        Project.where("clockify_id", time_entry["projectId"]).first().id
+                    )
                     try:
-                        activity_id = Activity.where("name", time_entry["task"]["name"]).first().id
+                        activity_id = (
+                            Activity.where("name", time_entry["task"]["name"].lower())
+                            .first()
+                            .id
+                        )
                     except TypeError:
                         print("No task")
                         print(time_entry)
@@ -132,14 +146,18 @@ class TimeEntry(Model):
                     start = time_entry["timeInterval"]["start"]
                     end = time_entry["timeInterval"]["end"]
                     description = time_entry["description"]
-                    TimeEntry.update_or_create({"clockify_id": clockify_id},
-                                               {"member_id": member_id,
-                                                "project_id": project_id,
-                                                "activity_id": activity_id,
-                                                "client_id": client_id,
-                                                "start": start,
-                                                "end": end,
-                                                "description": description})
+                    TimeEntry.update_or_create(
+                        {"clockify_id": clockify_id},
+                        {
+                            "member_id": member_id,
+                            "project_id": project_id,
+                            "activity_id": activity_id,
+                            "client_id": client_id,
+                            "start": start,
+                            "end": end,
+                            "description": description,
+                        },
+                    )
                 else:
                     print("No end time")
                     print(time_entry)

@@ -16,9 +16,10 @@ class Member(Model):
         Create a new member if necessary."""
         users = cls.fetch_all_users()
         for user in users:
-            Member.update_or_create({"clockify_id": user["clockify_id"]},
-                                    {"acronym": user["acronym"],
-                                     "email": user["email"]})
+            Member.update_or_create(
+                {"clockify_id": user["clockify_id"]},
+                {"acronym": user["acronym"], "email": user["email"]},
+            )
         return users
 
     @staticmethod
@@ -31,6 +32,10 @@ class Member(Model):
         url = "{}/workspace/{}/users".format(V1_API_URL, WORKSPACE_ID)
         responses = requests.get(url, headers=HEADERS)
         return [
-            {"acronym": user["name"], "clockify_id": user["id"], "email": user["email"]}
+            {
+                "acronym": user["name"].lower(),
+                "clockify_id": user["id"],
+                "email": user["email"].lower(),
+            }
             for user in responses.json()
         ]
