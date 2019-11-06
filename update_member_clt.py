@@ -5,7 +5,7 @@ from models import Member
 def main():
     print("Type the acronyms of the members who are CLT now.")
     print("Example: 'JNR LAB FSN PYC'")
-    acronyms = input("").upper().split()
+    acronyms = input("").lower().split()
     for acronym in acronyms:
         member = Member.where("acronym", acronym).first()
         if member is not None:
