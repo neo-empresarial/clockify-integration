@@ -16,8 +16,9 @@ class Project(Model):
         Create a new project if necessary."""
         projects = cls.fetch_all_projects()
         for project in projects:
-            Project.update_or_create({"clockify_id": project["clockify_id"]},
-                                     {"name": project["name"]})
+            Project.update_or_create(
+                {"clockify_id": project["clockify_id"]}, {"name": project["name"]}
+            )
         return projects
 
     @staticmethod
@@ -30,6 +31,6 @@ class Project(Model):
         url = "{}/workspaces/{}/projects".format(V1_API_URL, WORKSPACE_ID)
         responses = requests.get(url, headers=HEADERS)
         return [
-            {"name": project["name"], "clockify_id": project["id"]}
+            {"name": project["name"].lower(), "clockify_id": project["id"]}
             for project in responses.json()
         ]
