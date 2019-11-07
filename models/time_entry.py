@@ -20,13 +20,13 @@ class TimeEntry(Model):
         "created_at",
         "updated_at",
     ]
-    __primary_key__ = "clockify_id"
+    __primary_key__ = "id"
 
-    @belongs_to("member_id", "clockify_id")
+    @belongs_to("member_id", "id")
     def member(self):
         return Member
 
-    @belongs_to("project_id", "clockify_id")
+    @belongs_to("project_id", "id")
     def project(self):
         return Project
 
@@ -34,7 +34,7 @@ class TimeEntry(Model):
     def activity(self):
         return Activity
 
-    @belongs_to("client_id", "clockify_id")
+    @belongs_to("client_id", "id")
     def client(self):
         return Client
 
