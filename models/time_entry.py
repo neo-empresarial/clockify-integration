@@ -87,49 +87,48 @@ class TimeEntry(Model):
            Company projects starts with a letter followed by numbers (e.g. 'W101')"""
         return bool(re.search("^([a-z])\d+", project_name))
 
+    @staticmethod
+    def update_tag_clockify(time_entry, correct_tag_clockify_id):
+        """Update a Time Entry tag in clockify workspace.
+           Returns the request response."""
+        url_update = "{}/workspaces/{}/time-entries/{}".format(
+            V1_API_URL, WORKSPACE_ID, time_entry["id"])
+
+        update_time_entry = {"start": time_entry['timeInterval']['start'],
+                             "billable": time_entry['billable'],
+                             "description": time_entry['description'],
+                             "projectId": time_entry['projectId'],
+                             "taskId": time_entry['task']['id'],
+                             "end": time_entry['timeInterval']['start'],
+                             "tagIds": [correct_tag_clockify_id]}
+        return requests.put(url_update, json=update_time_entry, headers=HEADERS)
+
     @classmethod
     def correct_empty_or_wrong_tag(cls, time_entry):
         """Check if the tag is empty and if the time entry is for a company project.
            With that it can sometimes correct the tag."""
-        project_name = (
-            Project.where("clockify_id", time_entry["projectId"]).first().name
-        )
+        project_name = Project.where("clockify_id",
+                                     time_entry["projectId"]).first().name
         tag_is_empty = cls.tag_is_empty(time_entry)
         is_company_project = cls.is_company_project(project_name)
-        
-        url_update = "{}/workspaces/{}/time-entries/{}".format(
-                      V1_API_URL, WORKSPACE_ID, time_entry["id"])
-        update_time_entry = {"start": time_entry['timeInterval']['start'],
-                             "billable": time_entry['billable'], 
-                             "description": time_entry['description'],
-                             "projectId": time_entry['projectId'],
-                             "taskId": time_entry['task'],
-                             "end": time_entry['timeInterval']['start']}
-        
+
         if tag_is_empty and is_company_project:
-            update_time_entry["tagsID"] = [cls.find_company_clokify_id(project_name)]
-            if update_time_entry["description"] == 'teste2':
-                print(project_name)
-                requests.put(url_update, update_time_entry)
-                print("Missing tag for company project")
-                print(update_time_entry)
-            return cls.find_company_id(project_name)
+            # Send report to user
+            company = cls.find_company(project_name)
+            cls.update_tag_clockify(time_entry, company.clockify_id)
+            print("Time Entry with id {}, in project name {} has empty tag. Assuming tagId is {}"
+                  .format(time_entry["id"], project_name, company.name))
+            return company.id
 
         elif not tag_is_empty and is_company_project:
-            expected_company_tag_id = cls.find_company_id(project_name)
-<<<<<<< HEAD
-            company_tag_id = (
-                Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
-            )
-            if company_tag_id != expected_company_tag_id:
-=======
-            company_tag_id = Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
-            #if company_tag_id != expected_company_tag_id:
->>>>>>> Test if is working
-                # Send report to user; Change on clockify
-                #print("Client is different than expected")
-                #print(time_entry)
-            return expected_company_tag_id
+            expected_company = cls.find_company(project_name)
+            company_tag = Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
+            if company_tag != expected_company.id:
+                # Send report to user
+                cls.update_tag_clockify(time_entry, expected_company.clockify_id)
+                print("""Time Entry with id {}, in project name {} has a wrong tag.
+                         Assuming tagId is {}""".format(time_entry["id"], project_name, expected_company.name))
+            return expected_company.id
 
         elif not tag_is_empty and not is_company_project:
             # Here we could check alot of stuff
@@ -137,17 +136,12 @@ class TimeEntry(Model):
             return Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
 
         elif tag_is_empty and not is_company_project:
-<<<<<<< HEAD
-            print(
-                "Missing tag for a project that is not a company project. Assuming tag is NEO"
-            )
-            print(time_entry)
-=======
-            #("Missing tag for a project that is not a company project. Assuming tag is NEO")
-            #print(time_entry)
->>>>>>> Test if is working
-            # Send report to user; Change on clockify
-            return Client.where("name", "neo").first().id
+            # Send report to user;
+            print("""Time Entry with id {}, in project name {} has empty tag.
+                     Assuming tagId is neo""".format(time_entry["id"], project_name))
+            neo = Client.where("name", "neo").first()
+            cls.update_tag_clockify(time_entry, neo.clockify_id)
+            return neo.id
 
     @staticmethod
     def check_to_long_time_entry(parameter_list):
