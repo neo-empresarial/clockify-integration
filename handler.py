@@ -18,13 +18,13 @@ def sns_publisher(event, context, task):
     context_parts = context.invoked_function_arn.split(":")
     topic_name = os.getenv("SNS_TOPIC_NAME")
     topic_arn = "arn:aws:sns:{region}:{account_id}:{topic}".format(
-        region=context_parts[3], account_id=context_parts[4], topic=topic_name
-    )
+        region=context_parts[3], account_id=context_parts[4], topic=topic_name)
 
     sns.publish(
         TopicArn=topic_arn,
         Message="T",
-        MessageAttributes={"task": {"DataType": "String", "StringValue": task}},
+        MessageAttributes={
+            "task": {"DataType": "String", "StringValue": task}},
     )
 
 
@@ -60,10 +60,3 @@ def update_time_entries(event, context):
 
 def email_on_success(event, context):
     return EmailSender(["lab@certi.org.br", "jnr@certi.org.br"]).send()
-
-if __name__ == '__main__':
-    Member.save_from_clockify()
-    Project.save_from_clockify()
-    Activity.save_from_clockify()
-    Client.save_from_clockify()
-    TimeEntry.save_from_clockify()
