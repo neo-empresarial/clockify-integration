@@ -1,7 +1,6 @@
 from orator import DatabaseManager, Model
 import os
 
-
 DB_HOSTNAME = os.getenv("DB_HOSTNAME")
 DB_NAME = os.getenv("DB_NAME")
 DB_USERNAME = os.getenv("DB_USERNAME")

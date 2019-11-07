@@ -16,6 +16,7 @@ class EmailSender:
             from_email,
             to_emails,
             subject,
-            html_content="<strong>Our lambda functions are born and say hello</strong>",
+            html_content=
+            "<strong>Our lambda functions are born and say hello</strong>",
         )
         return self.sg.client.mail.send.post(request_body=mail.get())

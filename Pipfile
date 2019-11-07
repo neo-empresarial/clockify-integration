@@ -17,6 +17,7 @@ sendgrid = "*"
 boto3 = "*"
 pandas = "*"
 xlrd = "*"
+yapf = "*"
 
 [requires]
 python_version = "3.7"
