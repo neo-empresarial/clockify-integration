@@ -41,16 +41,16 @@ class TimeEntry(Model):
     @staticmethod
     def find_company_id(project_name):
         """Returns clockify_id from company based on the project name"""
-        if project_name[0] == "C":
-            return Client.where("name", "CERTI").first().id
-        elif project_name[0] == "E":
-            return Client.where("name", "Embraco").first().id
-        elif project_name[0] == "N":
-            return Client.where("name", "NEO").first().id
-        elif project_name[0] == "T":
-            return Client.where("name", "Tupy").first().id
-        elif project_name[0] == "W":
-            return Client.where("name", "WEG").first().id
+        if project_name[0] == "c":
+            return Client.where("name", "certi").first().id
+        elif project_name[0] == "e":
+            return Client.where("name", "embraco").first().id
+        elif project_name[0] == "n":
+            return Client.where("name", "neo").first().id
+        elif project_name[0] == "t":
+            return Client.where("name", "tupy").first().id
+        elif project_name[0] == "w":
+            return Client.where("name", "weg").first().id
         else:
             print(project_name)
             raise ReferenceError("No client starts with this letter")
@@ -104,7 +104,7 @@ class TimeEntry(Model):
             )
             print(time_entry)
             # Send report to user; Change on clockify
-            return Client.where("name", "NEO").first().id
+            return Client.where("name", "neo").first().id
 
     @staticmethod
     def check_to_long_time_entry(parameter_list):
