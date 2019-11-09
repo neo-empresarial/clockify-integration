@@ -8,7 +8,7 @@ DB_USERNAME = os.getenv("DB_USERNAME")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 CONFIG = {
-    "default": 'development',
+    "default": os.getenv("ENVIRONMENT"),
     "production": {
         "driver": "postgres",
         "host": DB_HOSTNAME,
