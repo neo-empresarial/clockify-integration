@@ -14,8 +14,9 @@ orator = "*"
 psycopg2-binary = "*"
 requests = "*"
 sendgrid = "*"
-chalice = "*"
 boto3 = "*"
+pandas = "*"
+xlrd = "*"
 
 [requires]
 python_version = "3.7"
