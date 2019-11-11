@@ -215,14 +215,14 @@ def import_timesheets():
 
     for timesheet in glob.glob("*xlsx"):
         year_semester = timesheet.split("_")[3].split(".")[0][:5]
-        path = timesheets_path + "/" + timesheet
+        path = os.path.join(timesheets_path, timesheet)
         clean_timesheet = read_timesheet(year_semester, path)
         time_entries = create_time_entries(empty_time_entries, clean_timesheet)
         time_entries_with_ids = fill_ids(time_entries)
 
         # Save time_entries in csv file at the same directory that has the timesheets
         time_entries_with_ids.to_csv(
-            timesheets_path + "/" + "time_entries" + year_semester + ".csv"
+            os.path.join(timesheets_path, "time_entries" + year_semester + ".csv")
         )
         send_to_database(time_entries_with_ids)
         print("Done " + timesheet)
