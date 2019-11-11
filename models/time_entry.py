@@ -20,13 +20,13 @@ class TimeEntry(Model):
         "created_at",
         "updated_at",
     ]
-    __primary_key__ = "clockify_id"
+    __primary_key__ = "id"
 
-    @belongs_to("member_id", "clockify_id")
+    @belongs_to("member_id", "id")
     def member(self):
         return Member
 
-    @belongs_to("project_id", "clockify_id")
+    @belongs_to("project_id", "id")
     def project(self):
         return Project
 
@@ -34,23 +34,23 @@ class TimeEntry(Model):
     def activity(self):
         return Activity
 
-    @belongs_to("client_id", "clockify_id")
+    @belongs_to("client_id", "id")
     def client(self):
         return Client
 
     @staticmethod
     def find_company_id(project_name):
         """Returns clockify_id from company based on the project name"""
-        if project_name[0] == "C":
-            return Client.where("name", "CERTI").first().id
-        elif project_name[0] == "E":
-            return Client.where("name", "Embraco").first().id
-        elif project_name[0] == "N":
-            return Client.where("name", "NEO").first().id
-        elif project_name[0] == "T":
-            return Client.where("name", "Tupy").first().id
-        elif project_name[0] == "W":
-            return Client.where("name", "WEG").first().id
+        if project_name[0] == "c":
+            return Client.where("name", "certi").first().id
+        elif project_name[0] == "e":
+            return Client.where("name", "embraco").first().id
+        elif project_name[0] == "n":
+            return Client.where("name", "neo").first().id
+        elif project_name[0] == "t":
+            return Client.where("name", "tupy").first().id
+        elif project_name[0] == "w":
+            return Client.where("name", "weg").first().id
         else:
             print(project_name)
             raise ReferenceError("No client starts with this letter")
@@ -68,7 +68,7 @@ class TimeEntry(Model):
     def is_company_project(project_name):
         """Check if this is a company project.
            Company projects starts with a letter followed by numbers (e.g. 'W101')"""
-        return bool(re.search("^([A-Z])\d+", project_name))
+        return bool(re.search("^([a-z])\d+", project_name))
 
     @classmethod
     def correct_empty_or_wrong_tag(cls, time_entry):
@@ -104,7 +104,7 @@ class TimeEntry(Model):
             )
             print(time_entry)
             # Send report to user; Change on clockify
-            return Client.where("name", "NEO").first().id
+            return Client.where("name", "neo").first().id
 
     @staticmethod
     def check_to_long_time_entry(parameter_list):

@@ -15,7 +15,6 @@ psycopg2-binary = "*"
 requests = "*"
 sendgrid = "*"
 boto3 = "*"
-psycopg2 = "*"
 pandas = "*"
 xlrd = "*"
 

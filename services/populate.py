@@ -1,5 +1,6 @@
 import sys
-sys.path.append('../')
+
+sys.path.append("../")
 from config import settings
 from models import Activity, Client, Member, Project, TimeEntry
 
