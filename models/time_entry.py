@@ -39,39 +39,22 @@ class TimeEntry(Model):
         return Client
 
     @staticmethod
-    def find_company_id(project_name):
+    def find_company(project_name):
         """Returns clockify_id from company based on the project name"""
         if project_name[0] == "c":
-            return Client.where("name", "certi").first().id
+            return Client.where("name", "certi").first()
         elif project_name[0] == "e":
-            return Client.where("name", "embraco").first().id
+            return Client.where("name", "embraco").first()
         elif project_name[0] == "n":
-            return Client.where("name", "neo").first().id
+            return Client.where("name", "neo").first()
         elif project_name[0] == "t":
-            return Client.where("name", "tupy").first().id
+            return Client.where("name", "tupy").first()
         elif project_name[0] == "w":
-            return Client.where("name", "weg").first().id
+            return Client.where("name", "weg").first()
         else:
             print(project_name)
             raise ReferenceError("No client starts with this letter")
-
-    @staticmethod
-    def find_company_clokify_id(project_name):
-        """Returns clockify_id from company based on the project name"""
-        if project_name[0] == "C":
-            return Client.where("name", "CERTI").first().clockify_id
-        elif project_name[0] == "E":
-            return Client.where("name", "Embraco").first().clockify_id
-        elif project_name[0] == "N":
-            return Client.where("name", "NEO").first().clockify_id
-        elif project_name[0] == "T":
-            return Client.where("name", "Tupy").first().clockify_id
-        elif project_name[0] == "W":
-            return Client.where("name", "WEG").first().clockify_id
-        else:
-            print(project_name)
-            raise ReferenceError("No client starts with this letter")
-
+    
     @staticmethod
     def tag_is_empty(time_entry):
         """Check if the time entry has an empty tag"""
@@ -116,8 +99,8 @@ class TimeEntry(Model):
             # Send report to user
             company = cls.find_company(project_name)
             cls.update_tag_clockify(time_entry, company.clockify_id)
-            print("Time Entry with id {}, in project name {} has empty tag. Assuming tagId is {}"
-                  .format(time_entry["id"], project_name, company.name))
+            print("Time Entry {}, in project {} has empty tag. Assuming tagId is {}".format(
+                  time_entry["id"], project_name, company.name))
             return company.id
 
         elif not tag_is_empty and is_company_project:
@@ -126,8 +109,9 @@ class TimeEntry(Model):
             if company_tag != expected_company.id:
                 # Send report to user
                 cls.update_tag_clockify(time_entry, expected_company.clockify_id)
-                print("""Time Entry with id {}, in project name {} has a wrong tag.
-                         Assuming tagId is {}""".format(time_entry["id"], project_name, expected_company.name))
+                print("Time Entry {}, in project {} has a wrong tag. Assuming tag is {}".format(
+                    time_entry["id"], project_name, expected_company.name))
+            
             return expected_company.id
 
         elif not tag_is_empty and not is_company_project:
@@ -137,8 +121,8 @@ class TimeEntry(Model):
 
         elif tag_is_empty and not is_company_project:
             # Send report to user;
-            print("""Time Entry with id {}, in project name {} has empty tag.
-                     Assuming tagId is neo""".format(time_entry["id"], project_name))
+            print("Time Entry {}, in project {} has empty tag. Assuming tag is neo".format(
+                  time_entry["id"], project_name))
             neo = Client.where("name", "neo").first()
             cls.update_tag_clockify(time_entry, neo.clockify_id)
             return neo.id
