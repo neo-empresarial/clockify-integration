@@ -8,6 +8,7 @@ black = "*"
 pre-commit = "*"
 pylint = "*"
 pdoc3 = "*"
+yapf = "*"
 
 [packages]
 orator = "*"
@@ -17,7 +18,6 @@ sendgrid = "*"
 boto3 = "*"
 pandas = "*"
 xlrd = "*"
-yapf = "*"
 
 [requires]
 python_version = "3.7"
