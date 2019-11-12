@@ -8,6 +8,7 @@ black = "*"
 pre-commit = "*"
 pylint = "*"
 pdoc3 = "*"
+yapf = "*"
 
 [packages]
 orator = "*"
