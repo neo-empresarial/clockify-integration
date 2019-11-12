@@ -100,7 +100,7 @@ class TimeEntry(Model):
             # Send report to user
             company = cls.find_company(project_name)
             cls.update_tag_clockify(time_entry, company.clockify_id)
-            print("Time Entry {}, in project {} has empty tag. Assuming tagId is {}".format(
+            print("Time Entry {}, in project {} has empty tag. Assuming tagName is {}".format(
                   time_entry["id"], project_name, company.name))
             return company.id
 
@@ -110,7 +110,7 @@ class TimeEntry(Model):
             if company_tag != expected_company.id:
                 # Send report to user
                 cls.update_tag_clockify(time_entry, expected_company.clockify_id)
-                print("Time Entry {}, in project {} has a wrong tag. Assuming tag is {}".format(
+                print("Time Entry {}, in project {} has a wrong tag. Assuming tagName is {}".format(
                     time_entry["id"], project_name, expected_company.name))
             
             return expected_company.id
@@ -122,7 +122,7 @@ class TimeEntry(Model):
 
         elif tag_is_empty and not is_company_project:
             # Send report to user;
-            print("Time Entry {}, in project {} has empty tag. Assuming tag is neo".format(
+            print("Time Entry {}, in project {} has empty tag. Assuming tagName is neo".format(
                   time_entry["id"], project_name))
             neo = Client.where("name", "neo").first()
             cls.update_tag_clockify(time_entry, neo.clockify_id)
