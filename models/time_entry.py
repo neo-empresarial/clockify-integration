@@ -71,7 +71,7 @@ class TimeEntry(Model):
         return bool(re.search("^([a-z])\d+", project_name))
 
     @staticmethod
-    def update_tag_clockify(time_entry, correct_tag_clockify_id):
+    def update_tag_clockify(time_entry, tag_clockify_id):
         """Update a Time Entry tag in clockify workspace.
            Returns the request response."""
         url_update = "{}/workspaces/{}/time-entries/{}".format(
@@ -83,7 +83,7 @@ class TimeEntry(Model):
                              "projectId": time_entry['projectId'],
                              "taskId": time_entry['task']['id'],
                              "end": time_entry['timeInterval']['start'],
-                             "tagIds": [correct_tag_clockify_id]}
+                             "tagIds": [tag_clockify_id]}
         return requests.put(url_update, json=update_time_entry, headers=HEADERS)
 
     @classmethod
