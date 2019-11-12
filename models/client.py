@@ -16,8 +16,9 @@ class Client(Model):
         Create a new client if necessary."""
         tags = cls.fetch_all_tags()
         for tag in tags:
-            Client.update_or_create({"clockify_id": tag["clockify_id"]},
-                                    {"name": tag["name"]})
+            Client.update_or_create(
+                {"clockify_id": tag["clockify_id"]}, {"name": tag["name"]}
+            )
         return tags
 
     @staticmethod
@@ -29,7 +30,7 @@ class Client(Model):
 
         url = "{}/workspaces/{}/tags".format(V1_API_URL, WORKSPACE_ID)
         responses = requests.get(url, headers=HEADERS)
-        return [{
-            "clockify_id": client["id"],
-            "name": client["name"].lower()
-        } for client in responses.json()]
+        return [
+            {"clockify_id": client["id"], "name": client["name"].lower()}
+            for client in responses.json()
+        ]

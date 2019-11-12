@@ -1,7 +1,7 @@
-import re
-import requests
 from orator import Model
 from orator.orm import belongs_to
+import re
+import requests
 from models import Activity, Client, Member, Project
 from .config import V1_API_URL, WORKSPACE_ID, HEADERS
 
@@ -54,7 +54,7 @@ class TimeEntry(Model):
         else:
             print(project_name)
             raise ReferenceError("No client starts with this letter")
-    
+
     @staticmethod
     def tag_is_empty(time_entry):
         """Check if the time entry has an empty tag"""
@@ -90,8 +90,9 @@ class TimeEntry(Model):
     def correct_empty_or_wrong_tag(cls, time_entry):
         """Check if the tag is empty and if the time entry is for a company project.
            With that it can sometimes correct the tag."""
-        project_name = Project.where("clockify_id",
-                                     time_entry["projectId"]).first().name
+        project_name = (
+            Project.where("clockify_id", time_entry["projectId"]).first().name
+        )
         tag_is_empty = cls.tag_is_empty(time_entry)
         is_company_project = cls.is_company_project(project_name)
 

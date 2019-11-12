@@ -18,13 +18,13 @@ def sns_publisher(event, context, task):
     context_parts = context.invoked_function_arn.split(":")
     topic_name = os.getenv("SNS_TOPIC_NAME")
     topic_arn = "arn:aws:sns:{region}:{account_id}:{topic}".format(
-        region=context_parts[3], account_id=context_parts[4], topic=topic_name)
+        region=context_parts[3], account_id=context_parts[4], topic=topic_name
+    )
 
     sns.publish(
         TopicArn=topic_arn,
         Message="T",
-        MessageAttributes={
-            "task": {"DataType": "String", "StringValue": task}},
+        MessageAttributes={"task": {"DataType": "String", "StringValue": task}},
     )
 
 

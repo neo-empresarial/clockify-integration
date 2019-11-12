@@ -2,6 +2,7 @@ from orator.migrations import Migration
 
 
 class CreateMemberTable(Migration):
+
     def up(self):
         """
         Run the migrations.
