@@ -76,10 +76,10 @@ inside your session. After this, if you want quit the Postgres client, simply ty
 
 --- 
 
-With the development database created and python requirements installed we can migrate the tables. We will use the `orator_config.py` file to migrate, run the following command:
+With the database created and python requirements installed we can migrate the tables. We will use the `orator_config.py` file to migrate, run the following command:
 
 ```bash
 $ orator migrate -c orator_config.py
 ```
 
-If you want to recreate a fresh database. Just delete all the tables from the database and repeat the steps above.
+If you want to begin a new database, delete all the tables and run the migrations again.
