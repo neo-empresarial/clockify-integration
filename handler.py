@@ -1,6 +1,5 @@
 import boto3
 import os
-from config import settings
 from models import Activity, Client, Member, Project, TimeEntry
 from services import EmailSender
 

@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 from os.path import dirname, join, exists, abspath
 
 sys.path.append("../")
-from config import settings
 from models import Activity, Client, Member, Project, TimeEntry
 
 

@@ -1,6 +1,8 @@
+from models import *
 from itertools import chain
 from orator import Model
-from .config import V1_API_URL, WORKSPACE_ID, HEADERS
+from orator.orm import belongs_to_many
+
 import requests
 
 
@@ -10,6 +12,12 @@ class Activity(Model):
     __fillable__ = ["clockify_id", "name"]
     __primary_key__ = "id"
     __incrementing__ = True
+
+    @belongs_to_many("project_activity", "activity_id", "project_id")
+    def projects(self):
+        from models import Project
+
+        return Project
 
     @classmethod
     def save_from_clockify(cls):

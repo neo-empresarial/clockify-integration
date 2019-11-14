@@ -1,5 +1,6 @@
+from models import *
 from orator import Model
-from .config import V1_API_URL, WORKSPACE_ID, HEADERS
+
 import requests
 
 
