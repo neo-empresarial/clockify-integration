@@ -1,12 +1,13 @@
 import os
 import glob
 import pandas as pd
+import swifter
 import sys
 from datetime import datetime, timedelta
 from os.path import dirname, join, exists, abspath
 
 sys.path.append("../")
-from models import Activity, Client, Member, Project, TimeEntry
+from models import *
 
 
 def clean_timesheet(df, year):
@@ -92,6 +93,7 @@ def create_time_entries(time_entries, clean_timesheet):
     """Returns a dataframe with all time entries in path file."""
 
     timesheet_columns = list(clean_timesheet.iloc[:, 4:])
+
     for key, row in clean_timesheet.iterrows():
         member_acronym = row[0].lower()
         no_time_projects = ("feriado", "falta justificada")
@@ -106,6 +108,7 @@ def create_time_entries(time_entries, clean_timesheet):
                     time_entries = time_entries.append(
                         time_entry, ignore_index=True, sort=False
                     )
+
     return time_entries
 
 
@@ -169,6 +172,7 @@ def update_time_entries_ids(
     """Receives a dataframe that represents the time_entries without the ids
         Returns with the correct ids, based on the dictionaries member_ids,
         project_ids, activity_ids and client_ids"""
+
     for index, row in time_entries.iterrows():
         time_entries.loc[index, "member_id"] = member_ids[row[0]]
         time_entries.loc[index, "project_id"] = project_ids[row[2]]
@@ -181,7 +185,7 @@ def send_to_database(time_entries):
     """Sends time entries to database
        Return nothing."""
     time_entries = time_entries.reset_index()
-    settings.db.table("time_entry").insert(
+    db.table("time_entry").insert(
         time_entries.drop(
             ["index", "activity_name", "project_name", "client_name", "member_acronym"],
             axis=1,
@@ -230,3 +234,4 @@ def import_timesheets():
 
 if __name__ == "__main__":
     import_timesheets()
+

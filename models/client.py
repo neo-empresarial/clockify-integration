@@ -1,5 +1,5 @@
 from models import *
-from orator import Model
+
 
 import requests
 
