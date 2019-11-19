@@ -1,4 +1,4 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ce3cbba902194a358f2189247f0df90d)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ribeirojose/clockify-integration&amp;utm_campaign=Badge_Grade)
+[![Maintainability](https://api.codeclimate.com/v1/badges/b8c97fe0cb9760a0a19c/maintainability)](https://codeclimate.com/github/neo-empresarial/clockify-integration/maintainability)
 
 # Clockify Integration
 
