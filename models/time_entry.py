@@ -3,7 +3,7 @@ from models import *
 from orator.orm import belongs_to
 import re
 import requests
-from models import Activity, Client, Member, Project
+from models import *
 
 
 class TimeEntry(Model):
@@ -109,28 +109,6 @@ class TimeEntry(Model):
                 )
             )
             return company.id
-
-        elif not tag_is_empty and is_company_project:
-            expected_company = cls.find_company(project_name)
-            company_tag = (
-                Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
-            )
-            if company_tag != expected_company.id:
-                # Send report to user
-                cls.update_tag_clockify(time_entry, expected_company.clockify_id)
-                print(
-                    "Time Entry {}, in project {} has a wrong tag. Assuming tagName is {}".format(
-                        time_entry["id"], project_name, expected_company.name
-                    )
-                )
-
-            return expected_company.id
-
-        elif not tag_is_empty and not is_company_project:
-            # Here we could check alot of stuff
-            # like Neócio or if the task of the time entry can have this task.
-            return Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
-
         elif tag_is_empty and not is_company_project:
             # Send report to user;
             print(
@@ -141,6 +119,27 @@ class TimeEntry(Model):
             neo = Client.where("name", "neo").first()
             cls.update_tag_clockify(time_entry, neo.clockify_id)
             return neo.id
+
+        company_tag = (
+            Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
+        )
+
+        if not tag_is_empty and is_company_project:
+            expected_company = cls.find_company(project_name)
+            if company_tag != expected_company.id:
+                # Send report to user
+                cls.update_tag_clockify(time_entry, expected_company.clockify_id)
+                print(
+                    "Time Entry {}, in project {} has a wrong tag. Assuming tagName is {}".format(
+                        time_entry["id"], project_name, expected_company.name
+                    )
+                )
+            return expected_company.id
+
+        elif not tag_is_empty and not is_company_project:
+            # Here we could check alot of stuff
+            # like Neócio or if the task of the time entry can have this task.
+            return company_tag
 
     @staticmethod
     def check_to_long_time_entry(parameter_list):
