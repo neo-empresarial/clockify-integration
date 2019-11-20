@@ -18,7 +18,7 @@ class Client(Model):
         clients = cls.fetch_all_clients()
         for client in clients:
             Client.update_or_create(
-                {"clockify_id": client["clockify_id"]}, {"name": client["name"]}
+                {"name": client["name"]}, {"clockify_id": client["clockify_id"]}
             )
         return clients
 
