@@ -33,20 +33,16 @@ def create_project(name: AnyStr) -> None:
 
     if not valid_project_name(name):
         print(
-            "A client cannot be assigned to a project with this name.\
+            " A client cannot be assigned to a project with this name.\
         \n Please use format C###, in which C is the company initial\
-        \n and ### the project number, completed with zeros to the left if necessary.)"
+        \n and ### the project number, completed with zeros to the left if necessary."
         )
         return
 
-    client = Client.where("name", "like", f"{name[0]}%").first()
-
+    client = Client.where("name", "like", f"{name[0].lower()}%").first()
     project_name = name.upper()
-
     default_activities = Project.find(0).activities
-    import pdb
 
-    pdb.set_trace()
     proj_data = {
         "name": project_name,
         "isPublic": "true",  # On Clockify this means the project is visible to the whole team
@@ -61,12 +57,23 @@ def create_project(name: AnyStr) -> None:
         json=proj_data,
         headers=HEADERS,
     )
+
+    if proj_response.status_code != 201:
+        print(f"Project {project_name} could not be created in Clockify. Aborting.")
+        return
+    print(f"Project {project_name} created in Clockify.")
     proj_clockify_id = proj_response.json().get("id")
+    try:
+        new_proj = Project.create(
+            name=project_name.lower(), clockify_id=proj_clockify_id
+        )
+        new_proj.activities().sync(default_activities.map(lambda x: x.id).all())
 
-    new_proj = Project.create(name=project_name, clockify_id=proj_clockify_id)
-    new_proj.activities().sync(default_activities.map(lambda x: x.id).all())
-
-    print(f"Project {project_name} created.")
+        print(f"Project {project_name} created in {os.getenv('ENVIRONMENT')} database.")
+    except:
+        print(
+            f"Project {project_name} could not be created in {os.getenv('ENVIRONMENT')} database."
+        )
     pass
 
 
