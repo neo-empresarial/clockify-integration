@@ -8,27 +8,18 @@ sys.path.append("../")
 from models import *
 
 
-def create_client(name: AnyStr) -> None:
-    proj_response = requests.post(
-        f"{V1_API_URL}/workspaces/{WORKSPACE_ID}/clients",
-        json={"name": name},
-        headers=HEADERS,
-    )
-    print(f"Client {name} created.")
-    pass
-
-
 @click.command()
 @click.option("--name", prompt="Project name", help="The name for the project.")
-# TODO: implement clients in our DB
 def create_project(name: AnyStr) -> None:
     colors = {
         "e": "#69b39e",
         "t": "#09215d",
-        "n": "#FF9800",
+        "n": "#ff9800",
         "w": "#1b60ce",
-        "c": "#8BC34A",
+        "c": "#8bc34a",
     }
+
+    client = Client.where("name", "like", f"{name[0]}%").first()
 
     project_name = name.upper()
     default_activities = Project.find(0).activities
@@ -36,9 +27,11 @@ def create_project(name: AnyStr) -> None:
         "name": project_name,
         "isPublic": "true",  # On Clockify this means the project is visible to the whole team
         "billable": "true",
-        "color": colors[project_name.lower()[0]],
-        "tasks": [{"name": x.name} for x in default_activities.all()],
+        "color": colors.get(project_name[0], "#ffffff"),
+        "tasks": [{"name": activity.name} for activity in default_activities.all()],
+        "clientId": client.clockify_id,
     }
+
     proj_response = requests.post(
         f"{V1_API_URL}/workspaces/{WORKSPACE_ID}/projects",
         json=proj_data,
