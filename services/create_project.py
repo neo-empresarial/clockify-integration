@@ -19,8 +19,24 @@ def create_project(name: AnyStr) -> None:
         "c": "#8bc34a",
     }
 
-    if not (name[0] in colors.keys()) or not type(name[1:]) is int:
-        print("A client with this name cannot be assigned to this project.")
+    def valid_project_name(name: AnyStr) -> bool:
+        if len(name) < 4:
+            return False
+        if not (name[0].lower() in colors.keys()):
+            return False
+        try:
+            proj_int = int(name[1:])
+            return True
+        except:
+            return False
+        return True
+
+    if not valid_project_name(name):
+        print(
+            "A client cannot be assigned to a project with this name.\
+        \n Please use format C###, in which C is the company initial\
+        \n and ### the project number, completed with zeros to the left if necessary.)"
+        )
         return
 
     client = Client.where("name", "like", f"{name[0]}%").first()
@@ -28,6 +44,9 @@ def create_project(name: AnyStr) -> None:
     project_name = name.upper()
 
     default_activities = Project.find(0).activities
+    import pdb
+
+    pdb.set_trace()
     proj_data = {
         "name": project_name,
         "isPublic": "true",  # On Clockify this means the project is visible to the whole team
