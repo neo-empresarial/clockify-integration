@@ -19,9 +19,14 @@ def create_project(name: AnyStr) -> None:
         "c": "#8bc34a",
     }
 
+    if not (name[0] in colors.keys()) or not type(name[1:]) is int:
+        print("A client with this name cannot be assigned to this project.")
+        return
+
     client = Client.where("name", "like", f"{name[0]}%").first()
 
     project_name = name.upper()
+
     default_activities = Project.find(0).activities
     proj_data = {
         "name": project_name,
