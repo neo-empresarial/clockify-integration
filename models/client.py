@@ -13,24 +13,23 @@ class Client(Model):
 
     @classmethod
     def save_from_clockify(cls):
-        """Check if all tags in clockify are register as clients in the database.
+        """Check if all clients in clockify are register as clients in the database.
         Create a new client if necessary."""
-        tags = cls.fetch_all_tags()
-        for tag in tags:
+        clients = cls.fetch_all_clients()
+        for client in clients:
             Client.update_or_create(
-                {"clockify_id": tag["clockify_id"]}, {"name": tag["name"]}
+                {"clockify_id": client["clockify_id"]}, {"name": client["name"]}
             )
-        return tags
+        return clients
 
     @staticmethod
-    def fetch_all_tags():
-        """Find all tags from Clockify on NEO's workspace.
-
-        Returns list of dictionaries containing "clockify_id" and "name"
-        of every tag."""
-
-        url = "{}/workspaces/{}/tags".format(V1_API_URL, WORKSPACE_ID)
-        responses = requests.get(url, headers=HEADERS)
+    def fetch_all_clients():
+        """Find all clients from Clockify on NEO's workspace.
+        Returns list of dictionaries containing 'clockify_id' and 'name'
+        of every client."""
+        responses = requests.get(
+            f"{V1_API_URL}/workspaces/{WORKSPACE_ID}/clients", headers=HEADERS
+        )
         return [
             {"clockify_id": client["id"], "name": client["name"].lower()}
             for client in responses.json()
