@@ -2,10 +2,23 @@ import requests
 import argparse
 import sys
 import click
-from typing import AnyStr
+from typing import AnyStr, List
 
 sys.path.append("../")
 from models import *
+
+
+def valid_project_name(name: AnyStr, valid_initials: List) -> bool:
+    if len(name) < 4:
+        return False
+    if not (name[0].lower() in valid_initials):
+        return False
+    try:
+        proj_int = int(name[1:])
+        return True
+    except:
+        return False
+    return True
 
 
 @click.command()
@@ -19,19 +32,7 @@ def create_project(name: AnyStr) -> None:
         "c": "#8bc34a",
     }
 
-    def valid_project_name(name: AnyStr) -> bool:
-        if len(name) < 4:
-            return False
-        if not (name[0].lower() in colors.keys()):
-            return False
-        try:
-            proj_int = int(name[1:])
-            return True
-        except:
-            return False
-        return True
-
-    if not valid_project_name(name):
+    if not valid_project_name(name, colors.keys()):
         print(
             " A client cannot be assigned to a project with this name.\
         \n Please use format C###, in which C is the company initial\
@@ -47,7 +48,7 @@ def create_project(name: AnyStr) -> None:
         "name": project_name,
         "isPublic": "true",  # On Clockify this means the project is visible to the whole team
         "billable": "true",
-        "color": colors.get(project_name[0], "#ffffff"),
+        "color": colors.get(project_name[0].lower(), "#ffffff"),
         "tasks": [{"name": activity.name} for activity in default_activities.all()],
         "clientId": client.clockify_id,
     }
