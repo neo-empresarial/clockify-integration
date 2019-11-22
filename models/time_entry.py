@@ -1,9 +1,9 @@
-from orator import Model
+from models import *
+
 from orator.orm import belongs_to
 import re
 import requests
-from models import Activity, Client, Member, Project
-from .config import V1_API_URL, WORKSPACE_ID, HEADERS
+from models import *
 
 
 class TimeEntry(Model):
@@ -75,15 +75,18 @@ class TimeEntry(Model):
         """Update a Time Entry tag in clockify workspace.
            Returns the request response."""
         url_update = "{}/workspaces/{}/time-entries/{}".format(
-            V1_API_URL, WORKSPACE_ID, time_entry["id"])
+            V1_API_URL, WORKSPACE_ID, time_entry["id"]
+        )
 
-        update_time_entry = {"start": time_entry['timeInterval']['start'],
-                             "billable": time_entry['billable'],
-                             "description": time_entry['description'],
-                             "projectId": time_entry['projectId'],
-                             "taskId": time_entry['task']['id'],
-                             "end": time_entry['timeInterval']['start'],
-                             "tagIds": [tag_clockify_id]}
+        update_time_entry = {
+            "start": time_entry["timeInterval"]["start"],
+            "billable": time_entry["billable"],
+            "description": time_entry["description"],
+            "projectId": time_entry["projectId"],
+            "taskId": time_entry["task"]["id"],
+            "end": time_entry["timeInterval"]["start"],
+            "tagIds": [tag_clockify_id],
+        }
         return requests.put(url_update, json=update_time_entry, headers=HEADERS)
 
     @classmethod
@@ -100,33 +103,43 @@ class TimeEntry(Model):
             # Send report to user
             company = cls.find_company(project_name)
             cls.update_tag_clockify(time_entry, company.clockify_id)
-            print("Time Entry {}, in project {} has empty tag. Assuming tagName is {}".format(
-                  time_entry["id"], project_name, company.name))
+            print(
+                "Time Entry {}, in project {} has empty tag. Assuming tagName is {}".format(
+                    time_entry["id"], project_name, company.name
+                )
+            )
             return company.id
+        elif tag_is_empty and not is_company_project:
+            # Send report to user;
+            print(
+                "Time Entry {}, in project {} has empty tag. Assuming tagName is neo".format(
+                    time_entry["id"], project_name
+                )
+            )
+            neo = Client.where("name", "neo").first()
+            cls.update_tag_clockify(time_entry, neo.clockify_id)
+            return neo.id
 
-        elif not tag_is_empty and is_company_project:
+        company_tag = (
+            Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
+        )
+
+        if not tag_is_empty and is_company_project:
             expected_company = cls.find_company(project_name)
-            company_tag = Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
             if company_tag != expected_company.id:
                 # Send report to user
                 cls.update_tag_clockify(time_entry, expected_company.clockify_id)
-                print("Time Entry {}, in project {} has a wrong tag. Assuming tagName is {}".format(
-                    time_entry["id"], project_name, expected_company.name))
-            
+                print(
+                    "Time Entry {}, in project {} has a wrong tag. Assuming tagName is {}".format(
+                        time_entry["id"], project_name, expected_company.name
+                    )
+                )
             return expected_company.id
 
         elif not tag_is_empty and not is_company_project:
             # Here we could check alot of stuff
             # like Neócio or if the task of the time entry can have this task.
-            return Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
-
-        elif tag_is_empty and not is_company_project:
-            # Send report to user;
-            print("Time Entry {}, in project {} has empty tag. Assuming tagName is neo".format(
-                  time_entry["id"], project_name))
-            neo = Client.where("name", "neo").first()
-            cls.update_tag_clockify(time_entry, neo.clockify_id)
-            return neo.id
+            return company_tag
 
     @staticmethod
     def check_to_long_time_entry(parameter_list):
@@ -146,12 +159,18 @@ class TimeEntry(Model):
                         member_id = (
                             Member.where("clockify_id", time_entry["userId"]).first().id
                         )
-                        project_id = (
-                            Project.where("clockify_id", time_entry["projectId"]).first().id
-                        )
+                        try:
+                            project_id = (
+                                Project.where("clockify_id", time_entry["projectId"])
+                                .first()
+                                .id
+                            )
+                        except AttributeError:
+                            print("Time entry sem projeto")
+                            continue
                         try:
                             activity_id = (
-                                Activity.where("name", time_entry["task"]["name"])
+                                Activity.where("name", time_entry["task"]["name"].lower())
                                 .first()
                                 .id
                             )

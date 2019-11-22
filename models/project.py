@@ -1,5 +1,7 @@
-from orator import Model
-from .config import V1_API_URL, WORKSPACE_ID, HEADERS
+from models import *
+
+from orator.orm import belongs_to_many
+
 import requests
 
 
@@ -9,6 +11,21 @@ class Project(Model):
     __fillable__ = ["clockify_id", "name"]
     __primary_key__ = "id"
     __incrementing__ = True
+
+    @belongs_to_many("project_activity", "project_id", "activity_id")
+    def activities(self):
+        from models import Activity
+
+        return Activity
+
+    @classmethod
+    def create_default(cls, name):
+        """Create project with default activities"""
+        template = Project.first()
+        try:
+            cls.create({"name": name})
+        except:
+            pass
 
     @classmethod
     def save_from_clockify(cls):

@@ -1,5 +1,5 @@
-from orator import Model
-from .config import V1_API_URL, WORKSPACE_ID, HEADERS
+from models import *
+
 import requests
 
 
@@ -15,6 +15,7 @@ class Member(Model):
         """Check if all users in clockify are register as members in the database.
         Create a new member if necessary."""
         users = cls.fetch_all_users()
+
         for user in users:
             Member.update_or_create(
                 {"clockify_id": user["clockify_id"]},
@@ -28,7 +29,6 @@ class Member(Model):
 
         Returns list of dictionaries containing "acronym", "clockify_id" and "email"
         of every user."""
-
         url = "{}/workspace/{}/users".format(V1_API_URL, WORKSPACE_ID)
         responses = requests.get(url, headers=HEADERS)
         return [

@@ -18,6 +18,7 @@ sendgrid = "*"
 boto3 = "*"
 pandas = "*"
 xlrd = "*"
+swifter = "*"
 
 [requires]
 python_version = "3.7"
