@@ -82,4 +82,11 @@ With the database created and python requirements installed we can migrate the t
 $ orator migrate -c orator_config.py
 ```
 
-If you want to begin a new database, delete all the tables and run the migrations again.
+If you want to begin a new database, you can run this SQL query:
+
+```sql
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+```
+
+and run the migrations again.
