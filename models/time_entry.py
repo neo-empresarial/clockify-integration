@@ -159,14 +159,18 @@ class TimeEntry(Model):
                         member_id = (
                             Member.where("clockify_id", time_entry["userId"]).first().id
                         )
-                        project_id = (
-                            Project.where("clockify_id", time_entry["projectId"])
-                            .first()
-                            .id
-                        )
+                        try:
+                            project_id = (
+                                Project.where("clockify_id", time_entry["projectId"])
+                                .first()
+                                .id
+                            )
+                        except AttributeError:
+                            print("Time entry sem projeto")
+                            continue
                         try:
                             activity_id = (
-                                Activity.where("name", time_entry["task"]["name"])
+                                Activity.where("name", time_entry["task"]["name"].lower())
                                 .first()
                                 .id
                             )
