@@ -32,6 +32,10 @@ We recommend to use pyenv to install python 3.7.4 locally and then use pipenv to
 $ pipenv install && pipenv shell
 ```
 
+### .env file
+
+Using the `.template.env` fill the missing keys and save it as a **new** copy with the name `.env` at the root directory of the project. Pipenv will use this file to load the environment variables.
+
 ### Migrate database
 
 After installing postgres we can create a database and default database user you'll use in your development environment.
@@ -72,14 +76,17 @@ inside your session. After this, if you want quit the Postgres client, simply ty
 
 --- 
 
-With the development database created and python requirements installed we can migrate the tables. We will use the `orator_development.py` file to migrate, run the following command:
+With the database created and python requirements installed we can migrate the tables. We will use the `orator_config.py` file to migrate, run the following command:
 
 ```bash
-$ orator migrate -c orator_development.py
+$ orator migrate -c orator_config.py
 ```
 
-If you want to recreate a fresh database. Just delete all the tables from the database and repeat the steps above. 
+If you want to begin a new database, you can run this SQL query:
 
-### .env file
+```sql
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+```
 
-Using the `.template.env` fill the missing keys and save it as a **new** copy with the name `.env` at the root directory of the project. Pipenv will use this file to load the environment variables
+and run the migrations again.
