@@ -2,13 +2,13 @@ import requests
 import argparse
 import sys
 import click
-from typing import AnyStr, List
+from typing import List
 
 sys.path.append("../")
 from models import *
 
 
-def valid_project_name(name: AnyStr, valid_initials: List) -> bool:
+def valid_project_name(name: str, valid_initials: List[str]) -> bool:
     if len(name) < 4:
         return False
     if not (name[0].lower() in valid_initials):
@@ -23,7 +23,7 @@ def valid_project_name(name: AnyStr, valid_initials: List) -> bool:
 
 @click.command()
 @click.option("--name", prompt="Project name", help="The name for the project.")
-def create_project(name: AnyStr) -> None:
+def create_project(name: str) -> None:
     colors = {
         "e": "#69b39e",
         "t": "#09215d",
