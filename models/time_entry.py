@@ -3,6 +3,8 @@ from models import *
 from orator.orm import belongs_to
 import re
 import requests
+import pandas as pd
+from pandas import json_normalize
 from models import *
 
 
@@ -58,11 +60,7 @@ class TimeEntry(Model):
     @staticmethod
     def tag_is_empty(time_entry):
         """Check if the time entry has an empty tag"""
-        try:
-            tag_id = time_entry["tags"][0]["id"]
-            return False
-        except IndexError:
-            return True
+        return pd.isna(time_entry["tag.id"])
 
     @staticmethod
     def is_company_project(project_name):
@@ -79,12 +77,12 @@ class TimeEntry(Model):
         )
 
         update_time_entry = {
-            "start": time_entry["timeInterval"]["start"],
+            "start": time_entry["timeInterval.start"],
             "billable": time_entry["billable"],
             "description": time_entry["description"],
             "projectId": time_entry["projectId"],
-            "taskId": time_entry["task"]["id"],
-            "end": time_entry["timeInterval"]["start"],
+            "taskId": time_entry["task.id"],
+            "end": time_entry["timeInterval.end"],
             "tagIds": [tag_clockify_id],
         }
         return requests.put(url_update, json=update_time_entry, headers=HEADERS)
@@ -121,7 +119,7 @@ class TimeEntry(Model):
             return neo.id
 
         company_tag = (
-            Client.where("clockify_id", time_entry["tags"][0]["id"]).first().id
+            Client.where("clockify_id", time_entry["tag.id"]).first().id
         )
 
         if not tag_is_empty and is_company_project:
@@ -145,59 +143,87 @@ class TimeEntry(Model):
     def check_to_long_time_entry(parameter_list):
         pass
 
-    @classmethod
-    def save_from_clockify(cls, start="2019-08-05T00:00:01Z"):
+    @staticmethod
+    def fetch_all_time_entries(start):
+        """Return time entries from all members that started after the specified start 
+           datetime from clockify in a pandas dataframe"""
+        data = []
         for member in Member.all():
             if member.clockify_id is not None:
-                url_get = "{}/workspaces/{}/user/{}/time-entries?hydrated=true&page-size=1000&start={}".format(
+                url_get = "{}/workspaces/{}/user/{}/time-entries?hydrated=true&in-progress=0&page-size=1000&start={}".format(
                     V1_API_URL, WORKSPACE_ID, member.clockify_id, start
                 )
-                time_entries = requests.get(url_get, headers=HEADERS)
-                for time_entry in time_entries.json():
-                    if time_entry["timeInterval"]["end"] is not None:
-                        clockify_id = time_entry["id"]
-                        member_id = (
-                            Member.where("clockify_id", time_entry["userId"]).first().id
-                        )
-                        try:
-                            project_id = (
-                                Project.where("clockify_id", time_entry["projectId"])
-                                .first()
-                                .id
-                            )
-                        except AttributeError:
-                            print("Time entry sem projeto")
-                            continue
-                        try:
-                            activity_id = (
-                                Activity.where("name", time_entry["task"]["name"].lower())
-                                .first()
-                                .id
-                            )
-                        except TypeError:
-                            print("No task in Time Entry {}".format(clockify_id))
-                            # Send report to member
-                            continue
-                        try:
-                            client_id = cls.correct_empty_or_wrong_tag(time_entry)
-                        except ReferenceError:
-                            print(time_entry)
-                            print("New Company, code needs to be updated")
-                            continue
-                        start = time_entry["timeInterval"]["start"]
-                        end = time_entry["timeInterval"]["end"]
-                        description = time_entry["description"]
-                        TimeEntry.update_or_create(
-                            {"clockify_id": clockify_id},
-                            {
-                                "member_id": member_id,
-                                "project_id": project_id,
-                                "activity_id": activity_id,
-                                "client_id": client_id,
-                                "start": start,
-                                "end": end,
-                                "description": description,
-                            },
-                        )
-                    else:
-                        print("No end time")
+                time_entries = requests.get(url_get, headers=HEADERS, stream=False).json()
+                if len(time_entries) != 0:
+                    df_te = json_normalize(time_entries, record_prefix='te.')
+                    df_tags = json_normalize(time_entries, ["tags"], ['id'],
+                                           record_prefix='tag.', meta_prefix='te.', errors='ignore')
+                    df_all = pd.merge(df_te, df_tags, left_on='id', right_on='te.id', how='left')
+                    cols_to_keep = ['id','description','billable','userId','projectId',
+                                    'project.name','project.clientId','project.archived',
+                                    'project.clientName','project.note','timeInterval.start',
+                                    'timeInterval.end','task.id','task.name','tag.id',
+                                    'tag.name',
+                                   ]
+                    df_all = df_all[cols_to_keep]
+                    df_all["member_id"] = member.id
+                    data.append(df_all)
+        return pd.concat(data, sort=False)
+
+    @classmethod
+    def process_time_entry(cls, time_entry):
+        """Check and correct time entry data before sending to database"""
+        if not pd.isna(time_entry["timeInterval.end"]):
+            clockify_id = time_entry["id"]
+            member_id = (
+                Member.where("clockify_id", time_entry["userId"]).first().id
+            )
+            if not pd.isna(time_entry["projectId"]):
+                project_id = (
+                    Project.where("clockify_id", time_entry["projectId"])
+                    .first()
+                    .id
+                )
+            else:
+                print("Time entry sem projeto")
+                return
+            if not pd.isna(time_entry["task.name"]):
+                activity_id = (
+                    Activity.where("name", time_entry["task.name"].lower())
+                    .first()
+                    .id
+                )
+            else:
+                print("No task in Time Entry {}".format(clockify_id))
+                # Send report to member
+                return
+            try:
+                client_id = cls.correct_empty_or_wrong_tag(time_entry)
+            except ReferenceError:
+                print("New Company, code needs to be updated")
+                return
+            start = time_entry["timeInterval.start"]
+            end = time_entry["timeInterval.end"]
+            description = time_entry["description"]
+            TimeEntry.update_or_create(
+                {"clockify_id": clockify_id},
+                {
+                    "member_id": member_id,
+                    "project_id": project_id,
+                    "activity_id": activity_id,
+                    "client_id": client_id,
+                    "start": start,
+                    "end": end,
+                    "description": description,
+                },
+            )
+        else:
+            print("No end time")
+
+    @classmethod
+    def save_from_clockify(cls, start="2020-01-01T00:00:01Z"):
+        """Save all time entries from all members that started after the specified start
+           datetime from clockify in the database"""
+        time_entries = cls.fetch_all_time_entries(start)
+        time_entries.apply(lambda time_entry: cls.process_time_entry(time_entry), axis=1)
+        return
