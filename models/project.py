@@ -6,7 +6,7 @@ import requests
 class Project(Model):
 
     __table__ = "project"
-    __fillable__ = ["clockify_id", "name"]
+    __fillable__ = ["clockify_id", "name", "archived"]
     __primary_key__ = "id"
     __incrementing__ = True
 
