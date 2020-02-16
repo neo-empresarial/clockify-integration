@@ -1,7 +1,5 @@
 from models import *
-
 from orator.orm import belongs_to_many
-
 import requests
 
 
@@ -39,13 +37,16 @@ class Project(Model):
         return projects
 
     @staticmethod
-    def fetch_all_projects():
+    def fetch_all_projects(archived=0):
         """Find all projects on NEO's workspace.
-
+        Use the parameter archived="" to retrieve all projects.
+        Use the parameter archived=0 to retrieve all active projects.
+        Use the parameter archived=1 to retrieve all archived projects.
         Returns list of dictionaries containing "name", "clockify_id"
         for every project."""
 
-        url = "{}/workspaces/{}/projects".format(V1_API_URL, WORKSPACE_ID)
+        url = "{}/workspaces/{}/projects?page-size=100&archived={}"
+        url = url.format(V1_API_URL, WORKSPACE_ID, archived)
         responses = requests.get(url, headers=HEADERS)
         return [
             {"name": project["name"].lower(), "clockify_id": project["id"]}
