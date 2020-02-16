@@ -39,7 +39,9 @@ class Project(Model):
     @staticmethod
     def fetch_all_projects(archived=0):
         """Find all projects on NEO's workspace.
-        Use the parameter archived=1 to retrieve all projects.
+        Use the parameter archived="" to retrieve all projects.
+        Use the parameter archived=0 to retrieve all active projects.
+        Use the parameter archived=1 to retrieve all archived projects.
         Returns list of dictionaries containing "name", "clockify_id"
         for every project."""
 
