@@ -54,8 +54,8 @@ def row_valid(project_name, activity_name, client_name, no_time_projects):
 def fix_row(project_name, activity_name, client_name, no_time_projects):
     """Returns project, activity and client name in a dict."""
     if project_name[0] in ["C", "E", "N", "T", "B", "W"]:
-        project_number = project_name.split(".",1)[1]
-        project_name = project_name[0]+(3-len(project_number))*'0'+project_number
+        project_number = project_name.split(".", 1)[1]
+        project_name = project_name[0] + project_number.zfill(3)
 
     names = {"project": project_name.lower()}
     if names["project"] in no_time_projects:
