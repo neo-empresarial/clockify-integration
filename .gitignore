@@ -155,4 +155,5 @@ dmypy.json
 .DS_Store
 
 # Path with olds timesheets
-/old_timesheet_migration/timesheets/*
+/old_timesheet_migration/timesheets/*.csv
+/old_timesheet_migration/timesheets/*.xlsx
