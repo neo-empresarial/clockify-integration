@@ -1,6 +1,7 @@
 from models import *
 from orator.orm import belongs_to_many
 import requests
+import datetime
 
 
 class Project(Model):
@@ -15,6 +16,51 @@ class Project(Model):
         from models import Activity
 
         return Activity
+
+    @staticmethod
+    def archive_project_clockify(project_clockify_id):
+        """Archive a Project in clockify workspace.
+           Returns the request response."""
+        url_archive = "{}/workspaces/{}/projects/{}/archive".format(
+            V0_API_URL, WORKSPACE_ID, project_clockify_id
+        )
+        return requests.get(url_archive, headers=HEADERS)
+
+    @classmethod
+    def check_and_change_to_archived(
+        cls, project, last_time_entry, change_on_clockify=False, days_threshold=100
+    ):
+        """Given a project and its last time entry check if it should be archived in
+           our database and, if change_on_clockify=True, in Clockify as well"""
+        if last_time_entry is not None:
+            diff = datetime.datetime.now() - last_time_entry.end
+            if diff.days >= days_threshold:
+                project.archived = True
+                project.save()
+                if change_on_clockify:
+                    cls.update_project_clockify(project.clockify_id)
+                return True
+
+        return False
+
+    @classmethod
+    def archive_inactive_projects(cls):
+        """Change all projects inactive with a time entry older than 100 days
+           to archived in our database and in Clockify"""
+        from models import TimeEntry
+
+        projects = (
+            Project.where("archived", "=", False).where("clockify_id", "!=", "").get()
+        )
+        for project in projects:
+            time_entry = (
+                TimeEntry.where("project_id", "=", project.id)
+                .order_by("start", "desc")
+                .first()
+            )
+            cls.check_and_change_to_archived(
+                project, time_entry, change_on_clockify=True
+            )
 
     @classmethod
     def create_default(cls, name):
