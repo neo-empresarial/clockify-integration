@@ -33,3 +33,13 @@ class Client(Model):
             {"clockify_id": client["id"], "name": client["name"].lower()}
             for client in responses.json()
         ]
+
+    @staticmethod
+    def map_all_clients():
+        """Returns a dictionary of all clients in database. Dictionary key is client
+           clockify id. This should be used to reduce Queries to our DB in other functions."""
+
+        clients_map = {}
+        for client in Client.all():
+            clients_map[client.clockify_id] = {"id": client.id, "name": client.name}
+        return clients_map
