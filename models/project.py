@@ -28,10 +28,13 @@ class Project(Model):
             pass
 
     @classmethod
-    def save_from_clockify(cls):
+    def save_from_clockify(cls, archived=0):
         """Check if all projects in clockify are register as projects in the database.
-        Create a new project if necessary."""
-        projects = cls.fetch_all_projects()
+           Create a new project if necessary.
+           Use the parameter archived="" to retrieve all projects.
+           Use the parameter archived=0 to retrieve all active projects.
+           Use the parameter archived=1 to retrieve all archived projects."""
+        projects = cls.fetch_all_projects(archived)
         clients_dict = Client.map_all_clients()
         for project in projects:
             Project.update_or_create(
@@ -46,11 +49,11 @@ class Project(Model):
     @staticmethod
     def fetch_all_projects(archived=0):
         """Find all projects on NEO's workspace.
-        Use the parameter archived="" to retrieve all projects.
-        Use the parameter archived=0 to retrieve all active projects.
-        Use the parameter archived=1 to retrieve all archived projects.
-        Returns list of dictionaries containing "name", "clockify_id"
-        for every project."""
+           Use the parameter archived="" to retrieve all projects.
+           Use the parameter archived=0 to retrieve all active projects.
+           Use the parameter archived=1 to retrieve all archived projects.
+           Returns list of dictionaries containing "name", "clockify_id"
+           for every project."""
 
         url = "{}/workspaces/{}/projects?page-size=100&archived={}"
         url = url.format(V1_API_URL, WORKSPACE_ID, archived)
