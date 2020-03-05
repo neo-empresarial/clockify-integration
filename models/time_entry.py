@@ -1,5 +1,4 @@
 from models import *
-
 from orator.orm import belongs_to
 import re
 import requests

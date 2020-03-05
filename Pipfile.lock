@@ -46,10 +46,11 @@
         },
         "bleach": {
             "hashes": [
-                "sha256:213336e49e102af26d9cde77dd2d0397afabc5a6bf2fed985dc35b5d1e285a16",
-                "sha256:3fdf7f77adcf649c9911387df51254b813185e32b2c6619f690b593a617e19fa"
+                "sha256:44f69771e2ac81ff30d929d485b7f9919f3ad6d019b6b20c74f3b8687c3f70df",
+                "sha256:aa8b870d0f46965bac2c073a93444636b0e1ca74e9777e34f03dd494b8a59d48"
             ],
-            "version": "==3.1.0"
+            "index": "pypi",
+            "version": "==3.1.1"
         },
         "blinker": {
             "hashes": [
@@ -59,9 +60,9 @@
         },
         "bokeh": {
             "hashes": [
-                "sha256:c60d38a41a777b8147ee4134e6142cea8026b5eebf48149e370c44689869dce7"
+                "sha256:448f36c8229ee290d9e44a6d3e72b4b70c237a34200f5eb6e1c810c6177c918e"
             ],
-            "version": "==1.4.0"
+            "version": "==2.0.0rc1"
         },
         "boto3": {
             "hashes": [
@@ -260,10 +261,10 @@
         },
         "jupyter-client": {
             "hashes": [
-                "sha256:60e6faec1031d63df57f1cc671ed673dced0ed420f4377ea33db37b1c188b910",
-                "sha256:d0c077c9aaa4432ad485e7733e4d91e48f87b4f4bab7d283d42bb24cbbba0a0f"
+                "sha256:1fac6e3be1e797aea33d5cd1cfa568ff1ee71e01180bc89f64b24ee274f1f126",
+                "sha256:ed2490c65f7e0987d1e7b2c4146371d58112489e558b3a835aefb86b7283f930"
             ],
-            "version": "==5.3.4"
+            "version": "==6.0.0"
         },
         "jupyter-core": {
             "hashes": [
@@ -891,6 +892,7 @@
                 "sha256:c845db36ba616912074c5b1ee897f8e0124df269468f25e4fe21fe72f6edd7a9",
                 "sha256:c9399267c926a4e7c418baa5cbe91c7d1cf362d505a1ef898fde44a07c9dd8a5"
             ],
+            "markers": "python_version < '3.8'",
             "version": "==6.0.3"
         },
         "tqdm": {
@@ -906,6 +908,14 @@
                 "sha256:d023ee369ddd2763310e4c3eae1ff649689440d4ae59d7485eb4cfbbe3e359f7"
             ],
             "version": "==4.3.3"
+        },
+        "typing-extensions": {
+            "hashes": [
+                "sha256:091ecc894d5e908ac75209f10d5b4f118fbdb2eb1ede6a63544054bb1edb41f2",
+                "sha256:910f4656f54de5993ad9304959ce9bb903f90aadc7c67a0bef07e678014e892d",
+                "sha256:cf8b63fedea4d89bab840ecbb93e75578af28f76f66c35889bd7065f5af88575"
+            ],
+            "version": "==3.7.4.1"
         },
         "tzlocal": {
             "hashes": [
@@ -944,9 +954,9 @@
         },
         "wrapt": {
             "hashes": [
-                "sha256:565a021fd19419476b9362b05eeaa094178de64f8361e44468f9e9d7843901e1"
+                "sha256:0ec40d9fd4ec9f9e3ff9bdd12dbd3535f4085949f4db93025089d7a673ea94e8"
             ],
-            "version": "==1.11.2"
+            "version": "==1.12.0"
         },
         "xlrd": {
             "hashes": [
@@ -1269,9 +1279,9 @@
         },
         "wrapt": {
             "hashes": [
-                "sha256:565a021fd19419476b9362b05eeaa094178de64f8361e44468f9e9d7843901e1"
+                "sha256:0ec40d9fd4ec9f9e3ff9bdd12dbd3535f4085949f4db93025089d7a673ea94e8"
             ],
-            "version": "==1.11.2"
+            "version": "==1.12.0"
         },
         "yapf": {
             "hashes": [
