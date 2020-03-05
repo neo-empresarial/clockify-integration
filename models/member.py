@@ -39,3 +39,17 @@ class Member(Model):
             }
             for user in responses.json()
         ]
+
+    @staticmethod
+    def map_all_members():
+        """Returns a dictionary of all members in database. Dictionary key is member
+           clockify id. This should be used to reduce Queries to our DB in other functions."""
+
+        members_map = {}
+        for member in Member.all():
+            members_map[member.clockify_id] = {
+                "id": member.id,
+                "acronym": member.acronym,
+                "email": member.email,
+            }
+        return members_map
