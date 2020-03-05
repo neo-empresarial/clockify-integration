@@ -1,19 +1,21 @@
 from models import *
-from orator.orm import belongs_to_many
+from orator.orm import belongs_to_many, belongs_to
 import requests
 
 
 class Project(Model):
 
     __table__ = "project"
-    __fillable__ = ["clockify_id", "name"]
+    __fillable__ = ["clockify_id", "client_id", "name",]
     __primary_key__ = "id"
     __incrementing__ = True
 
+    @belongs_to("client_id", "id")
+    def client(self):
+        return Client
+
     @belongs_to_many("project_activity", "project_id", "activity_id")
     def activities(self):
-        from models import Activity
-
         return Activity
 
     @classmethod
