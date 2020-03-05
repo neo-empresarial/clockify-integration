@@ -62,3 +62,13 @@ class Activity(Model):
             {"clockify_id": project["id"], "name": project["name"].lower()}
             for project in responses.json()
         ]
+
+    @staticmethod
+    def map_all_activities():
+        """Returns a dictionary of all activities in database. Dictionary key is activity
+           name. This should be used to reduce Queries to our DB in other functions."""
+
+        activities_map = {}
+        for activity in Activity.all():
+            activities_map[activity.name] = {"id": activity.id}
+        return activities_map
