@@ -6,7 +6,7 @@ import requests
 class Project(Model):
 
     __table__ = "project"
-    __fillable__ = ["clockify_id", "client_id", "name",]
+    __fillable__ = ["clockify_id", "client_id", "name"]
     __primary_key__ = "id"
     __incrementing__ = True
 
@@ -32,9 +32,14 @@ class Project(Model):
         """Check if all projects in clockify are register as projects in the database.
         Create a new project if necessary."""
         projects = cls.fetch_all_projects()
+        clients_dict = Client.map_all_clients()
         for project in projects:
             Project.update_or_create(
-                {"clockify_id": project["clockify_id"]}, {"name": project["name"]}
+                {"clockify_id": project["clockify_id"]},
+                {
+                    "client_id": clients_dict[project["client_id"]]["id"],
+                    "name": project["name"],
+                },
             )
         return projects
 
@@ -51,6 +56,10 @@ class Project(Model):
         url = url.format(V1_API_URL, WORKSPACE_ID, archived)
         responses = requests.get(url, headers=HEADERS)
         return [
-            {"name": project["name"].lower(), "clockify_id": project["id"]}
+            {
+                "name": project["name"].lower(),
+                "clockify_id": project["id"],
+                "client_id": project["clientId"],
+            }
             for project in responses.json()
         ]
