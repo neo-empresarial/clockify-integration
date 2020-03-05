@@ -77,33 +77,56 @@ class TimeEntry(Model):
                     ]
                     df_te = df_te[cols_to_keep]
                     df_te["member_id"] = member.id
+                    df_te["task.name"] = df_te["task.name"].str.lower()
                     data.append(df_te)
         return pd.concat(data, sort=False)
+
+    @staticmethod
+    def add_activity_client_member_project_ids(time_entries):
+        activities_dict = Activity.map_all_activities()
+        time_entries["activity_id"] = time_entries["task.name"].apply(
+            lambda task_name: activities_dict.get(task_name, {}).get("id")
+        )
+        clients_dict = Client.map_all_clients()
+        time_entries["client_id"] = time_entries["project.clientId"].apply(
+            lambda client_clockify_id: clients_dict.get(client_clockify_id, {}).get(
+                "id"
+            )
+        )
+        members_dict = Member.map_all_members()
+        time_entries["member_id"] = time_entries["userId"].apply(
+            lambda member_clockify_id: members_dict.get(member_clockify_id, {}).get(
+                "id"
+            )
+        )
+        projects_dict = Project.map_all_projects()
+        time_entries["project_id"] = time_entries["projectId"].apply(
+            lambda project_clockify_id: projects_dict.get(project_clockify_id, {}).get(
+                "id"
+            )
+        )
+        return time_entries
 
     @classmethod
     def process_time_entry(cls, time_entry):
         """Check and correct time entry data before sending to database"""
         if not pd.isna(time_entry["timeInterval.end"]):
             clockify_id = time_entry["id"]
-            member_id = Member.where("clockify_id", time_entry["userId"]).first().id
-            if not pd.isna(time_entry["projectId"]):
-                project_id = (
-                    Project.where("clockify_id", time_entry["projectId"]).first().id
-                )
+            member_id = time_entry["member_id"]
+            if not pd.isna(time_entry["project_id"]):
+                project_id = time_entry["project_id"]
             else:
-                print("Time entry sem projeto")
+                print("No project in Time Entry {}".format(clockify_id))
                 return
-            if not pd.isna(time_entry["task.name"]):
-                activity_id = (
-                    Activity.where("name", time_entry["task.name"].lower()).first().id
-                )
+            if not pd.isna(time_entry["activity_id"]):
+                activity_id = time_entry["activity_id"]
             else:
                 print("No task in Time Entry {}".format(clockify_id))
                 # Send report to member
                 return
-            try:
+            if not pd.isna(time_entry["client_id"]):
                 client_id = time_entry["client_id"]
-            except ReferenceError:
+            else:
                 print("New Company, code needs to be updated")
                 return
             start = time_entry["timeInterval.start"]
@@ -128,11 +151,8 @@ class TimeEntry(Model):
     def save_from_clockify(cls, start="2020-01-01T00:00:01Z"):
         """Save all time entries from all members that started after the specified start
            datetime from clockify in the database"""
-        clients_dict = Client.map_all_clients()
         time_entries = cls.fetch_all_time_entries(start)
-        time_entries["client_id"] = time_entries["project.clientId"].apply(
-            lambda client_clockify_id: clients_dict.get(client_clockify_id).get("id")
-        )
+        time_entries = cls.add_activity_client_member_project_ids(time_entries)
         time_entries.apply(
             lambda time_entry: cls.process_time_entry(time_entry), axis=1
         )
