@@ -117,9 +117,7 @@ class TimeEntry(Model):
             cls.update_tag_clockify(time_entry, neo.clockify_id)
             return neo.id
 
-        company_tag = (
-            Client.where("clockify_id", time_entry["tag.id"]).first().id
-        )
+        company_tag = Client.where("clockify_id", time_entry["tag.id"]).first().id
 
         if not tag_is_empty and is_company_project:
             expected_company = cls.find_company(project_name)
@@ -152,21 +150,31 @@ class TimeEntry(Model):
                 url_get = "{}/workspaces/{}/user/{}/time-entries?hydrated=true&in-progress=0&page-size=1000&start={}".format(
                     V1_API_URL, WORKSPACE_ID, member.clockify_id, start
                 )
-                time_entries = requests.get(url_get, headers=HEADERS, stream=False).json()
+                time_entries = requests.get(
+                    url_get, headers=HEADERS, stream=False
+                ).json()
                 if len(time_entries) != 0:
-                    df_te = json_normalize(time_entries, record_prefix='te.')
-                    df_tags = json_normalize(time_entries, ["tags"], ['id'],
-                                           record_prefix='tag.', meta_prefix='te.', errors='ignore')
-                    df_all = pd.merge(df_te, df_tags, left_on='id', right_on='te.id', how='left')
-                    cols_to_keep = ['id','description','billable','userId','projectId',
-                                    'project.name','project.clientId','project.archived',
-                                    'project.clientName','project.note','timeInterval.start',
-                                    'timeInterval.end','task.id','task.name','tag.id',
-                                    'tag.name',
-                                   ]
-                    df_all = df_all[cols_to_keep]
-                    df_all["member_id"] = member.id
-                    data.append(df_all)
+                    df_te = json_normalize(time_entries, record_prefix="te.")
+                    cols_to_keep = [
+                        "id",
+                        "description",
+                        "billable",
+                        "userId",
+                        "projectId",
+                        "project.name",
+                        "project.clientId",
+                        "project.archived",
+                        "project.clientName",
+                        "project.note",
+                        "timeInterval.start",
+                        "timeInterval.end",
+                        "task.id",
+                        "task.name",
+                        "tags",
+                    ]
+                    df_te = df_te[cols_to_keep]
+                    df_te["member_id"] = member.id
+                    data.append(df_te)
         return pd.concat(data, sort=False)
 
     @classmethod
@@ -174,30 +182,25 @@ class TimeEntry(Model):
         """Check and correct time entry data before sending to database"""
         if not pd.isna(time_entry["timeInterval.end"]):
             clockify_id = time_entry["id"]
-            member_id = (
-                Member.where("clockify_id", time_entry["userId"]).first().id
-            )
+            member_id = Member.where("clockify_id", time_entry["userId"]).first().id
             if not pd.isna(time_entry["projectId"]):
                 project_id = (
-                    Project.where("clockify_id", time_entry["projectId"])
-                    .first()
-                    .id
+                    Project.where("clockify_id", time_entry["projectId"]).first().id
                 )
             else:
                 print("Time entry sem projeto")
                 return
             if not pd.isna(time_entry["task.name"]):
                 activity_id = (
-                    Activity.where("name", time_entry["task.name"].lower())
-                    .first()
-                    .id
+                    Activity.where("name", time_entry["task.name"].lower()).first().id
                 )
             else:
                 print("No task in Time Entry {}".format(clockify_id))
                 # Send report to member
                 return
             try:
-                client_id = cls.correct_empty_or_wrong_tag(time_entry)
+                client_id = time_entry["client_id"]
+                # client_id = cls.correct_empty_or_wrong_tag(time_entry)
             except ReferenceError:
                 print("New Company, code needs to be updated")
                 return
@@ -223,6 +226,12 @@ class TimeEntry(Model):
     def save_from_clockify(cls, start="2020-01-01T00:00:01Z"):
         """Save all time entries from all members that started after the specified start
            datetime from clockify in the database"""
+        clients_dict = Client.map_all_clients()
         time_entries = cls.fetch_all_time_entries(start)
-        time_entries.apply(lambda time_entry: cls.process_time_entry(time_entry), axis=1)
+        time_entries["client_id"] = time_entries["project.clientId"].apply(
+            lambda client_clockify_id: clients_dict.get(client_clockify_id).get("id")
+        )
+        time_entries.apply(
+            lambda time_entry: cls.process_time_entry(time_entry), axis=1
+        )
         return
