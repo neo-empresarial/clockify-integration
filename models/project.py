@@ -66,3 +66,17 @@ class Project(Model):
             }
             for project in responses.json()
         ]
+
+    @staticmethod
+    def map_all_projects():
+        """Returns a dictionary of all projects in database. Dictionary key is project
+           clockify id. This should be used to reduce Queries to our DB in other functions."""
+
+        projects_map = {}
+        for project in Project.all():
+            projects_map[project.clockify_id] = {
+                "id": project.id,
+                "name": project.name,
+                "client_id": project.client_id,
+            }
+        return projects_map
