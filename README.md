@@ -81,6 +81,11 @@ With the database created and python requirements installed we can migrate the t
 ```bash
 $ orator migrate -c orator_config.py
 ```
+And then run the seeds with:
+
+```bash
+$ orator db:seed -c orator_config.py
+```
 
 If you want to begin a new database, you can run this SQL query:
 
@@ -89,4 +94,4 @@ DROP SCHEMA public CASCADE;
 CREATE SCHEMA public;
 ```
 
-and run the migrations again.
+and run the migrations and seeds again.
