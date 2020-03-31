@@ -36,7 +36,11 @@ class IndicatorConsolidation(Model):
             .get()
         )
         total_seconds = time_entries.sum(lambda te: (te.end - te.start).total_seconds())
-        return total_seconds / (20 * 50 * 60)
+        if total_seconds is None:
+            value = 0
+        else:
+            value = total_seconds / (20 * 50 * 60)
+        return value
 
     @staticmethod
     def get_first_sunday(start):
@@ -53,7 +57,7 @@ class IndicatorConsolidation(Model):
         if week_day == 7:
             saturday = now - timedelta(days=1)
         elif week_day != 6:
-            saturday = now - timedelta(days=week_day+1)
+            saturday = now - timedelta(days=week_day + 1)
         else:
             saturday = now
         return saturday
@@ -95,4 +99,3 @@ class IndicatorConsolidation(Model):
                     },
                     {"value": value, "updated_at": datetime.now()},
                 )
-        raise NotImplementedError
