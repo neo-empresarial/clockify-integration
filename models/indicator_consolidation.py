@@ -28,6 +28,9 @@ class IndicatorConsolidation(Model):
     def calculate_prep(start, end, member, neo_id=None):
         if neo_id is None:
             neo_id = Client.where("name", "neo").first().id
+        if member.date_deactivated is not None:
+            if start >= member.date_deactivated:
+                return None
         time_entries = (
             TimeEntry.where("member_id", member.id)
             .where("client_id", "!=", neo_id)
@@ -90,12 +93,13 @@ class IndicatorConsolidation(Model):
                 value = cls.calculate_prep(
                     interval["start"], interval["end"], member, neo_id
                 )
-                IndicatorConsolidation.update_or_create(
-                    {
-                        "start_date": interval["start"],
-                        "end_date": interval["end"],
-                        "member_id": member.id,
-                        "indicator_id": prep.id,
-                    },
-                    {"value": value, "updated_at": datetime.now()},
-                )
+                if value is not None:
+                    IndicatorConsolidation.update_or_create(
+                        {
+                            "start_date": interval["start"],
+                            "end_date": interval["end"],
+                            "member_id": member.id,
+                            "indicator_id": prep.id,
+                        },
+                        {"value": value, "updated_at": datetime.now()},
+                    )
