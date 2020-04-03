@@ -1,7 +1,7 @@
 import sys
 
 sys.path.append("../")
-from models import Activity, Client, Member, Project, TimeEntry
+from models import Activity, Client, Member, Project, TimeEntry, IndicatorConsolidation
 
 if __name__ == "__main__":
     Member.save_from_clockify()
@@ -9,3 +9,4 @@ if __name__ == "__main__":
     Project.save_from_clockify(archived="")
     Activity.save_from_clockify()
     TimeEntry.save_from_clockify(start="2020-03-01T00:00:01Z")
+    IndicatorConsolidation.populate_prep(start="2020-03-01T00:00:01")

@@ -6,7 +6,14 @@ import requests
 class Member(Model):
 
     __table__ = "member"
-    __fillable__ = ["clockify_id", "acronym", "email", "is_clt"]
+    __fillable__ = [
+        "clockify_id",
+        "acronym",
+        "email",
+        "is_clt",
+        "is_active",
+        "date_deactivated",
+    ]
     __primary_key__ = "id"
     __incrementing__ = True
 

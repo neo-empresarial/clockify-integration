@@ -42,4 +42,5 @@ from .activity import Activity
 from .member import Member
 from .project import Project
 from .time_entry import TimeEntry
-
+from .indicator import Indicator
+from .indicator_consolidation import IndicatorConsolidation
