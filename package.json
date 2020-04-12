@@ -1,0 +1,22 @@
+{
+  "name": "clockify-integration",
+  "version": "1.0.0",
+  "description": "[![Maintainability](https://api.codeclimate.com/v1/badges/b8c97fe0cb9760a0a19c/maintainability)](https://codeclimate.com/github/neo-empresarial/clockify-integration/maintainability)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neo-empresarial/clockify-integration.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/neo-empresarial/clockify-integration/issues"
+  },
+  "homepage": "https://github.com/neo-empresarial/clockify-integration#readme",
+  "dependencies": {
+    "serverless-python-requirements": "^5.1.0"
+  }
+}

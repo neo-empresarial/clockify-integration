@@ -11,3 +11,10 @@ functions:
     handler: handler.hello
     events:
       - schedule: rate(12 hours)
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: false
