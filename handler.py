@@ -1,25 +1,23 @@
+try:
+  import unzip_requirements
+except ImportError:
+  pass
 import json
+import datetime
 from models import *
 
-def hello(event, context):
-    TimeEntry.save_from_clockify(start="2020-03-01T00:00:01Z")
-    body = {
-        "message": "Go Serverless v1.0! Your function executed successfully!",
-        "input": event
-    }
+def update(event, context):
+    now = datetime.datetime.now()
+    three_weeks_ago = now - datetime.timedelta(weeks=3)
 
-    response = {
-        "statusCode": 200,
-        "body": json.dumps(body)
-    }
-
-    return response
-
-    # Use this code if you don't use the http event with the LAMBDA-PROXY
-    # integration
-    """
+    Member.save_from_clockify()
+    Client.save_from_clockify()
+    Project.save_from_clockify()
+    Activity.save_from_clockify()
+    TimeEntry.save_from_clockify(start=three_weeks_ago.strftime('%Y-%m-%dT%H:%M:%SZ'))
+    IndicatorConsolidation.populate_prep(start=three_weeks_ago.strftime('%Y-%m-%dT%H:%M:%S'))
+    
     return {
-        "message": "Go Serverless v1.0! Your function executed successfully!",
+        "message": "Function executed successfully!",
         "event": event
     }
-    """
