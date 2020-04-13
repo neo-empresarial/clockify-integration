@@ -14,11 +14,9 @@ yapf = "*"
 orator = "*"
 psycopg2-binary = "*"
 requests = "*"
-sendgrid = "*"
-boto3 = "*"
 pandas = "*"
 xlrd = "*"
-swifter = "*"
+pytz = "*"
 
 [requires]
 python_version = "3.7"
