@@ -161,3 +161,4 @@ dmypy.json
 # Serverless directories
 .serverless
 credentials.csv
+.requirements.zip

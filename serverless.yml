@@ -3,8 +3,9 @@ service: neo-data
 provider:
   name: aws
   runtime: python3.7
-  stage: dev
+  stage: prod
   region: us-east-1
+  timeout: 900
   environment:
     DB_HOSTNAME: ${env:DB_HOSTNAME}
     DB_NAME: ${env:DB_NAME}
@@ -16,17 +17,19 @@ provider:
     CLOCKIFY_WORKSPACE_ID: ${env:CLOCKIFY_WORKSPACE_ID}
 
 functions:
-  hello:
-    handler: handler.hello
+  update:
+    handler: handler.update
     events:
-      - schedule: rate(12 hours)
+      - schedule: rate(6 hours)
 
 plugins:
   - serverless-python-requirements
 
 custom:
   pythonRequirements:
-    dockerizePip: non-linux
+    dockerizePip: true
+    usePipenv: false
+    zip: true
 
 package:
   exclude:
@@ -35,3 +38,14 @@ package:
     - seeds/**
     - services/**
     - node_modules/**
+    - setup.cfg
+    - README.md
+    - Pipfile
+    - Pipfile.lock
+    - orator_config.py
+    - update_member_clt.py
+    - .template.env
+    - .python-version
+    - .pre-commit-config.yaml
+    - .codeclimate.yml
+
