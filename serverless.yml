@@ -5,6 +5,15 @@ provider:
   runtime: python3.7
   stage: dev
   region: us-east-1
+  environment:
+    DB_HOSTNAME: ${env:DB_HOSTNAME}
+    DB_NAME: ${env:DB_NAME}
+    DB_USERNAME: ${env:DB_USERNAME}
+    DB_PASSWORD: ${env:DB_PASSWORD}
+    DB_PORT: ${env:DB_PORT}
+    ENVIRONMENT: ${env:ENVIRONMENT}
+    CLOCKIFY_API_KEY: ${env:CLOCKIFY_API_KEY}
+    CLOCKIFY_WORKSPACE_ID: ${env:CLOCKIFY_WORKSPACE_ID}
 
 functions:
   hello:
@@ -17,4 +26,12 @@ plugins:
 
 custom:
   pythonRequirements:
-    dockerizePip: false
+    dockerizePip: non-linux
+
+package:
+  exclude:
+    - migrations/**
+    - old_timesheet_migration/**
+    - seeds/**
+    - services/**
+    - node_modules/**
