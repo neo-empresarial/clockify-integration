@@ -16,7 +16,8 @@
     "url": "https://github.com/neo-empresarial/clockify-integration/issues"
   },
   "homepage": "https://github.com/neo-empresarial/clockify-integration#readme",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "serverless-python-requirements": "^5.1.0"
   }
 }
