@@ -1,7 +1,8 @@
 import json
-
+from models import *
 
 def hello(event, context):
+    TimeEntry.save_from_clockify(start="2020-03-01T00:00:01Z")
     body = {
         "message": "Go Serverless v1.0! Your function executed successfully!",
         "input": event
