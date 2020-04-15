@@ -1,61 +1,23 @@
-import boto3
-import os
-from models import Activity, Client, Member, Project, TimeEntry
-from services import EmailSender
+try:
+  import unzip_requirements
+except ImportError:
+  pass
+import json
+import datetime
+from models import *
 
-# from services import EmailSender
-tasks = ["users", "projects", "activities", "tags", "time_entries"]
+def update(event, context):
+    now = datetime.datetime.now()
+    three_weeks_ago = now - datetime.timedelta(weeks=3)
 
-
-def periodic_handler(event, context):
-    sns_publisher(event, context, "users")
-
-
-def sns_publisher(event, context, task):
-    sns = boto3.client("sns")
-
-    context_parts = context.invoked_function_arn.split(":")
-    topic_name = os.getenv("SNS_TOPIC_NAME")
-    topic_arn = "arn:aws:sns:{region}:{account_id}:{topic}".format(
-        region=context_parts[3], account_id=context_parts[4], topic=topic_name
-    )
-
-    sns.publish(
-        TopicArn=topic_arn,
-        Message="T",
-        MessageAttributes={"task": {"DataType": "String", "StringValue": task}},
-    )
-
-
-def update_users(event, context):
     Member.save_from_clockify()
-    sns_publisher(event, context, "projects")
-
-
-def update_projects(event, context):
-    Project.save_from_clockify()
-    sns_publisher(event, context, "activities")
-
-
-def update_activities(event, context):
-    Activity.save_from_clockify()
-    sns_publisher(event, context, "tags")
-
-
-def update_tags(event, context):
     Client.save_from_clockify()
-    sns_publisher(event, context, "time_entries")
-
-
-def update_time_entries(event, context):
-    TimeEntry.save_from_clockify()
-    # try:
-    #     pass
-    # except Exception as e:
-    #     print(e)
-    # for task in tasks[:-1]:
-    #     sns_publisher(event, context, task)
-
-
-def email_on_success(event, context):
-    return EmailSender(["lab@certi.org.br", "jnr@certi.org.br"]).send()
+    Project.save_from_clockify()
+    Activity.save_from_clockify()
+    TimeEntry.save_from_clockify(start=three_weeks_ago.strftime('%Y-%m-%dT%H:%M:%SZ'))
+    IndicatorConsolidation.populate_prep(start=three_weeks_ago.strftime('%Y-%m-%dT%H:%M:%S'))
+    
+    return {
+        "message": "Function executed successfully!",
+        "event": event
+    }

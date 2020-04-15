@@ -1,102 +1,51 @@
-service: clockify-integration
+service: neo-data
 
 provider:
   name: aws
   runtime: python3.7
-  timeout: 180
-  iamRoleStatements:
-    - Effect: 'Allow'
-      Action:
-        - "sns:Publish"
-      Resource:
-        - ${self:custom.clockify}
+  stage: prod
+  region: us-east-1
+  timeout: 900
   environment:
     DB_HOSTNAME: ${env:DB_HOSTNAME}
-    DB_NAME:  ${env:DB_NAME}
-    DB_USERNAME:  ${env:DB_USERNAME}
-    DB_PASSWORD:  ${env:DB_PASSWORD}
-    DB_PORT:  ${env:DB_PORT}
-    DB_URI: ${env:DB_URI}
-    ENVIRONMENT:  ${env:ENVIRONMENT}
-    CLOCKIFY_WORKSPACE_ID:  ${env:CLOCKIFY_WORKSPACE_ID}
+    DB_NAME: ${env:DB_NAME}
+    DB_USERNAME: ${env:DB_USERNAME}
+    DB_PASSWORD: ${env:DB_PASSWORD}
+    DB_PORT: ${env:DB_PORT}
+    ENVIRONMENT: ${env:ENVIRONMENT}
     CLOCKIFY_API_KEY: ${env:CLOCKIFY_API_KEY}
-    SENDGRID_API_KEY:  ${env:SENDGRID_API_KEY}
-    SNS_TOPIC_NAME: ${env:SNS_TOPIC_NAME}
+    CLOCKIFY_WORKSPACE_ID: ${env:CLOCKIFY_WORKSPACE_ID}
+
+functions:
+  update:
+    handler: handler.update
+    events:
+      - schedule: rate(6 hours)
 
 plugins:
   - serverless-python-requirements
 
 custom:
   pythonRequirements:
-    dockerizePip: non-linux
-  clockify:
-    Fn::Join:
-      - ":"
-      - - arn
-        - aws
-        - sns
-        - Ref: AWS::Region
-        - Ref: AWS::AccountId
-        - clockify
+    dockerizePip: true
+    usePipenv: false
+    zip: true
 
-functions:
-  daily_trigger:
-    name: daily_trigger
-    handler: handler.periodic_handler
-    events:
-      - schedule: cron(*/15 6-19 * * ? *)
+package:
+  exclude:
+    - migrations/**
+    - old_timesheet_migration/**
+    - seeds/**
+    - services/**
+    - node_modules/**
+    - setup.cfg
+    - README.md
+    - Pipfile
+    - Pipfile.lock
+    - orator_config.py
+    - update_member_clt.py
+    - .template.env
+    - .python-version
+    - .pre-commit-config.yaml
+    - .codeclimate.yml
 
-  users:
-    name: 
-    handler: handler.update_users
-    events:
-      - sns:
-          topicName: clockify
-          displayName: Clockify integration events
-          filterPolicy:
-            task:
-              - users
-
-  projects:
-    name: 
-    handler: handler.update_projects
-    events:
-      - sns:
-          topicName: clockify
-          displayName: Clockify integration events
-          filterPolicy:
-            task:
-              - projects
-
-  activities:
-    name: 
-    handler: handler.update_activities
-    events:
-      - sns:
-          topicName: clockify
-          displayName: Clockify integration events
-          filterPolicy:
-            task:
-              - activities
-
-  tags:
-    name: 
-    handler: handler.update_tags
-    events:
-      - sns:
-          topicName: clockify
-          displayName: Clockify integration events
-          filterPolicy:
-            task:
-              - tags
-
-  time_entries:
-    name: 
-    handler: handler.update_time_entries
-    events:
-      - sns:
-          topicName: clockify
-          displayName: Clockify integration events
-          filterPolicy:
-            task:
-              - time_entries
