@@ -46,7 +46,7 @@ partd==1.1.0
 pastel==0.1.1
 pendulum==1.5.1
 pickleshare==0.7.5
-Pillow==7.0.0
+Pillow==9.0.1
 prompt-toolkit==3.0.5
 psutil==5.7.0
 psycopg2-binary==2.8.4
